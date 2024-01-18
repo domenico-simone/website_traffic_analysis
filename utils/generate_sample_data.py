@@ -1,3 +1,4 @@
+import argparse
 import os
 import pandas as pd
 import random
@@ -33,16 +34,17 @@ def generate_sample_data_hourly(n_events: int = 100000, n_banners: int = 10,
     
     return pd.DataFrame(data)
 
-# Generate appropriate out folder
-out_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/sample_data")
-os.makedirs(out_folder, exist_ok=True)
+if __name__ == "__main__":
+    # Generate appropriate out folder
+    out_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/sample_data")
+    os.makedirs(out_folder, exist_ok=True)
 
-# Generate 10 hourly batches of data
-start_time = datetime.utcnow()
+    # Generate 10 hourly batches of data
+    start_time = datetime.utcnow()
 
-for i in range(10):
-    print(f"Generating batch n. {i+1} starting from timestamp {start_time}")
-    sample_data = generate_sample_data_hourly(n_events=200000, start_time=start_time)
-    sample_data.to_csv(os.path.join(out_folder, f'sample_data_0{i+1}.csv'), index=False)
-    print(f'Exported file sample_data_{str(i+1).zfill(2)}.csv')
-    start_time += timedelta(hours=1)
+    for i in range(10):
+        print(f"Generating batch n. {i+1} starting from timestamp {start_time}")
+        sample_data = generate_sample_data_hourly(n_events=200000, start_time=start_time)
+        sample_data.to_csv(os.path.join(out_folder, f'sample_data_0{i+1}.csv'), index=False)
+        print(f'Exported file sample_data_{str(i+1).zfill(2)}.csv')
+        start_time += timedelta(hours=1)
