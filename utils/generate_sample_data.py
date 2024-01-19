@@ -28,7 +28,7 @@ def generate_sample_data_hourly(n_events: int = n_events_default,
     # each banner is a unique ad which can have different placements
     banner_ids = [f'banner{n}' for n in range(n_banners)]
     # placement number is constant, can't be changed
-    placement_ids = ['placement1', 'placement2', 'placement3']
+    placement_ids = [f'placement{n}' for n in range(5)]
     page_ids = [f'page{n}' for n in range(n_pages)]
     
     # simulate timestamps in a range of 1hr
