@@ -52,17 +52,17 @@ if __name__ == "__main__":
 
     # parse command line args
     parser = argparse.ArgumentParser(
-                    prog='Ad sample data generator',
+                    # prog='Ad sample data generator',
                     description='Generate a table with 1hr of ad sample data.')
 
     parser.add_argument('-e', '--n-events', default=n_events_default,
-                        help="Number of events to be generated")
+                        help="Number of events to be generated (%(default)s)")
     parser.add_argument('-b', '--n-banners', default=n_banners_default,
-                        help="Number of banners to be generated")
+                        help="Number of banners to be generated (%(default)s)")
     parser.add_argument('-p', '--n-pages', default=n_pages_default,
-                        help="Number of pages to be generated")
+                        help="Number of pages to be generated (%(default)s)")
     parser.add_argument('-t', '--n-batches', default=n_batches_default,
-                        help="Number of data batches to be generated")
+                        help="Number of data batches to be generated (%(default)s)")
         
     args = parser.parse_args()
     # print(args.filename, args.count, args.verbose)
