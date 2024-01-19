@@ -53,7 +53,7 @@ if __name__ == "__main__":
     # parse command line args
     parser = argparse.ArgumentParser(
                     # prog='Ad sample data generator',
-                    description='Generate a table with 1hr of ad sample data.')
+                    description='Generate one or more batches (tables) with ad sample data spanning one hour.')
 
     parser.add_argument('-e', '--n-events', default=n_events_default,
                         help="Number of events to be generated (%(default)s)")
@@ -62,16 +62,15 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--n-pages', default=n_pages_default,
                         help="Number of pages to be generated (%(default)s)")
     parser.add_argument('-t', '--n-batches', default=n_batches_default,
-                        help="Number of data batches to be generated (%(default)s)")
+                        help="Number of data batches (tables) to be generated (%(default)s)")
         
     args = parser.parse_args()
-    # print(args.filename, args.count, args.verbose)
     
     # Generate appropriate out folder
     out_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/sample_data")
     os.makedirs(out_folder, exist_ok=True)
 
-    # Generate 10 hourly batches of data
+    # Generate 10 batches of data spanning one hour each
     start_time = datetime.utcnow()
 
     if args.n_batches:
