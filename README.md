@@ -48,6 +48,27 @@ Ad clicks message processing: architecture design
 
 ### Generate sample data
 
+Please run the script `utils/generate_sample_data.py` which has the following options:
+
+```
+usage: generate_sample_data.py [-h] [-e N_EVENTS] [-b N_BANNERS] [-p N_PAGES] [-t N_BATCHES]
+
+Generate one or more batches (tables) with ad sample data spanning one hour.
+
+options:
+  -h, --help            show this help message and exit
+  -e N_EVENTS, --n-events N_EVENTS
+                        Number of events to be generated (100000)
+  -b N_BANNERS, --n-banners N_BANNERS
+                        Number of banners to be generated (10)
+  -p N_PAGES, --n-pages N_PAGES
+                        Number of pages to be generated (20)
+  -t N_BATCHES, --n-batches N_BATCHES
+                        Number of data batches (tables) to be generated (10)
+```
+
+setting placements is not provided as option since the number is set by design (n=5).
+
 ```bash
 python utils/generate_sample_data.py
 ```
