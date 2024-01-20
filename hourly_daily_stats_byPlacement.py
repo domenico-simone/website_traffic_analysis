@@ -82,7 +82,7 @@ for hour in hour_range:
     # logging.info(mid_placement_id_users.show(truncate=10))
 
     # show hourly stats
-    logging.info(f"Hourly stats for time range: {(start_time-timedelta(hours=1)).strftime('%Y-%m-%d, %H:%M:%S')} to {start_time.strftime('%Y-%m-%d, %H:%M:%S')}")
+    logging.info(f"Hourly stats for time range: {(start_time-timedelta(hours=1)).strftime('%Y-%m-%d, %H:%M:%S')} - {start_time.strftime('%Y-%m-%d, %H:%M:%S')}")
     hourly_stats_df.show()
 
     # accumulate statistics to the daily DataFrame
@@ -97,7 +97,7 @@ for hour in hour_range:
                 F.countDistinct("user_id").alias("distinct_users")
             )
         )
-        logging.info(f"Daily stats for day: {start_time.strftime('%Y-%m-%d')}")
+        logging.info(f"Daily stats for time range: {(start_time-timedelta(hours=24)).strftime('%Y-%m-%d, %H:%M:%S')} - {start_time.strftime('%Y-%m-%d, %H:%M:%S')}")
         daily_stats_df = (
             # df.groupBy("Placement_id", F.hour(F.from_unixtime("Timestamp")).alias("hour"))
             daily_df.groupBy("placement_id")
@@ -111,7 +111,7 @@ for hour in hour_range:
             .sort("placement_id")
         )
         daily_stats_df.show()
-        
+
         # reset dataframes to accumulate intermediate data
         daily_df = spark.createDataFrame([], schema=daily_df_schema)
         mid_placement_id_users = spark.createDataFrame([], schema=mid_placement_id_users_schema)
