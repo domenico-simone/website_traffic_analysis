@@ -25,6 +25,11 @@ The service could be implemented with one of the following architectures:
 - use real-time processing
 - use both (lambda architecture)
 
+#### Batch processing
+
+We assume we are receiving the events in hourly batches. Therefore, the job can be set up in this way:
+- For every batch, the hourly stats will be computed and shown
+- Every 24 batches, hourly and daily stats will be shown
 
 
 ## Other
@@ -74,3 +79,5 @@ setting placements is not provided as option since the number is set by design (
 ```bash
 python utils/generate_sample_data.py
 ```
+
+### Compute hourly statistics
