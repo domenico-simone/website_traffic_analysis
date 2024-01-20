@@ -55,6 +55,7 @@ for hour in hour_range:
             F.sum("Event_type").alias("clicks"),
             # F.countDistinct("User_id").alias("distinct_users")
         )
+        .sort("Placement_id")
     )
 
     # show hourly stats
@@ -76,6 +77,7 @@ for hour in hour_range:
                 F.sum("clicks").alias("clicks"),
                 # F.countDistinct("User_id").alias("distinct_users")
             )
+            .sort("Placement_id")
         )
         daily_stats_df.show()
         # reset dataframe to accumulate daily data
