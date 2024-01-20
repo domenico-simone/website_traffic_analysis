@@ -21,13 +21,14 @@ logger = logging.getLogger(__name__)
 # they will be parsed from utils/defaults.yaml
 conf = parse_conf('conf.yaml')
 
+logging.info(f"Configuration: {conf}")
 n_events = conf['n_events']
 n_banners = conf['n_banners']
 n_pages = conf['n_pages']
 n_users = conf['n_users']
 
 # stats conf
-grouping_field = conf['placement_id']
+grouping_field = conf['grouping_field']
 
 # set an argparse here to set number of days to simulate
 # so far we simulate 3 days starting from current time
@@ -40,7 +41,7 @@ spark = SparkSession.builder.appName("AdStatsProcessingByPlacement").getOrCreate
 
 ### Set up schemas
 hourly_stats_schema = StructType([
-    StructField("page_id", StringType(), True),
+    StructField(grouping_field, StringType(), True),
     StructField("views", IntegerType(), True),
     StructField("clicks", IntegerType(), True),
     # users to be added
@@ -48,7 +49,7 @@ hourly_stats_schema = StructType([
 ])
 
 daily_df_schema = StructType([
-    StructField("page_id", StringType(), True),
+    StructField(grouping_field, StringType(), True),
     StructField("views", IntegerType(), True),
     StructField("clicks", IntegerType(), True),
     # users to be added
@@ -57,8 +58,8 @@ daily_df_schema = StructType([
 
 # accumulate users for placements,
 # will be added to each daily report
-mid_page_id_users_schema = StructType([
-    StructField("page_id", StringType(), True),
+mid_grouping_field_users_schema = StructType([
+    StructField(grouping_field, StringType(), True),
     StructField("user_id", StringType(), True),
 ])
 
@@ -71,30 +72,33 @@ mid_page_id_users_schema = StructType([
 user_id_list = generate_user_id_list()
 
 daily_df = spark.createDataFrame([], schema=daily_df_schema)
-mid_page_id_users = spark.createDataFrame([], schema=mid_page_id_users_schema)
+mid_grouping_field_users = spark.createDataFrame([], schema=mid_grouping_field_users_schema)
 
 # Loop through the hours range and compute hourly stats
 for hour in hour_range:
 
     # generate current_df with generate_sample_data function
     current_df = spark.createDataFrame(generate_sample_data_hourly(users=user_id_list,
+                                                                   n_events=n_events,
+                                                                   n_banners=n_banners,
+                                                                   n_pages=n_pages,
                                                                    start_time=start_time))
     # logging.info(current_df.show(truncate=10))
-    # Hourly and daily statistics for each page_id
+    # Hourly and daily statistics for each grouping_field
     hourly_stats_df = (
-        # df.groupBy("page_id", F.hour(F.from_unixtime("Timestamp")).alias("hour"))
-        current_df.groupBy("page_id")
+        # df.groupBy(grouping_field, F.hour(F.from_unixtime("Timestamp")).alias("hour"))
+        current_df.groupBy(grouping_field)
         .agg(
             F.count(F.when(F.col("event_type") == 0, 1)).alias("views"),
             F.sum("event_type").alias("clicks"),
             F.countDistinct("user_id").alias("distinct_users")
         )
-        .sort("page_id")
+        .sort(grouping_field)
     )
 
-    # append page_id and user_id to mid_page_id_users
-    mid_page_id_users = mid_page_id_users.union(current_df.select("page_id", "user_id"))
-    # logging.info(mid_page_id_users.show(truncate=10))
+    # append grouping_field and user_id to mid_grouping_field_users
+    mid_grouping_field_users = mid_grouping_field_users.union(current_df.select(grouping_field, "user_id"))
+    # logging.info(mid_grouping_field_users.show(truncate=10))
 
     # show hourly stats
     logging.info(f"Hourly stats for time range: {(start_time-timedelta(hours=1)).strftime('%Y-%m-%d, %H:%M:%S')} - {start_time.strftime('%Y-%m-%d, %H:%M:%S')}")
@@ -106,30 +110,30 @@ for hour in hour_range:
     # show daily stats every 24 hours
     if hour % 24 == 0:
         # generate daily user count per placement
-        mid_page_id_users_count = (
-            mid_page_id_users.groupBy("page_id")
+        mid_grouping_field_users_count = (
+            mid_grouping_field_users.groupBy(grouping_field)
             .agg(
                 F.countDistinct("user_id").alias("distinct_users")
             )
         )
         logging.info(f"Daily stats for time range: {(start_time-timedelta(hours=24)).strftime('%Y-%m-%d, %H:%M:%S')} - {start_time.strftime('%Y-%m-%d, %H:%M:%S')}")
         daily_stats_df = (
-            # df.groupBy("page_id", F.hour(F.from_unixtime("Timestamp")).alias("hour"))
-            daily_df.groupBy("page_id")
+            # df.groupBy(grouping_field, F.hour(F.from_unixtime("Timestamp")).alias("hour"))
+            daily_df.groupBy(grouping_field)
             .agg(
                 F.sum("views").alias("views"),
                 F.sum("clicks").alias("clicks"),
                 # F.countDistinct("user_id").alias("distinct_users")
             )
-            # .join(mid_page_id_users_count, col("page_id") == mid_page_id_users_count.page_id)
-            .join(mid_page_id_users_count, on = "page_id", how = "left")
-            .sort("page_id")
+            # .join(mid_grouping_field_users_count, col(grouping_field) == mid_grouping_field_users_count.grouping_field)
+            .join(mid_grouping_field_users_count, on = grouping_field, how = "left")
+            .sort(grouping_field)
         )
         daily_stats_df.show()
 
         # reset dataframes to accumulate intermediate data
         daily_df = spark.createDataFrame([], schema=daily_df_schema)
-        mid_page_id_users = spark.createDataFrame([], schema=mid_page_id_users_schema)
+        mid_grouping_field_users = spark.createDataFrame([], schema=mid_grouping_field_users_schema)
 
     
     # cumulative_stats_df = cumulative_stats_df.union(hourly_stats_df)
