@@ -21,6 +21,17 @@ logger = logging.getLogger(__name__)
 # they will be parsed from utils/defaults.yaml
 conf = parse_conf('conf.yaml')
 
+n_events = conf['n_events']
+n_banners = conf['n_banners']
+n_pages = conf['n_pages']
+n_users = conf['n_users']
+
+# how many days of data to simulate
+n_days: 5
+
+# stats conf
+grouping_field = conf['placement_id']
+
 # set an argparse here to set number of days to simulate
 # so far we simulate 3 days starting from current time
 n_days = conf['n_days']
