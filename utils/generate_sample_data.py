@@ -59,7 +59,6 @@ if __name__ == "__main__":
 
     # parse command line args
     parser = argparse.ArgumentParser(
-                    # prog='Ad sample data generator',
                     description='Generate one or more batches (tables) with ad sample data spanning one hour.')
 
     parser.add_argument('-e', '--n-events', default=n_events_default,
