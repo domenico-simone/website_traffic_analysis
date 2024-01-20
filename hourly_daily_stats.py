@@ -40,6 +40,15 @@ start_time = datetime.utcnow()
 spark = SparkSession.builder.appName("AdStatsProcessingByPlacement").getOrCreate()
 
 ### Set up schemas
+event_schema = StructType([
+    StructField("timestamp", IntegerType(), True),
+    StructField("event_type", IntegerType(), True),
+    StructField("banner_id", StringType(), True),
+    StructField("placement_id", StringType(), True),
+    StructField("page_id", StringType(), True),
+    StructField("user_id", StringType(), True),
+])
+
 hourly_stats_schema = StructType([
     StructField(grouping_field, StringType(), True),
     StructField("views", IntegerType(), True),
@@ -82,7 +91,7 @@ for hour in hour_range:
                                                                    n_events=n_events,
                                                                    n_banners=n_banners,
                                                                    n_pages=n_pages,
-                                                                   start_time=start_time))
+                                                                   start_time=start_time), schema=event_schema)
     # logging.info(current_df.show(truncate=10))
     # Hourly and daily statistics for each grouping_field
     hourly_stats_df = (
