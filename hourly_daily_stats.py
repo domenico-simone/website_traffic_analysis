@@ -26,9 +26,6 @@ n_banners = conf['n_banners']
 n_pages = conf['n_pages']
 n_users = conf['n_users']
 
-# how many days of data to simulate
-n_days: 5
-
 # stats conf
 grouping_field = conf['placement_id']
 
