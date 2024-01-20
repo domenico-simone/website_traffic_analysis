@@ -30,6 +30,7 @@ def generate_user_id_list(n_users: int = n_users_default) -> list:
 def generate_sample_data_hourly(n_events: int = n_events_default, 
                                 n_banners: int = n_banners_default,
                                 n_pages: int = n_pages_default, 
+                                users: list = generate_user_id_list(),
                                 start_time: datetime = datetime.utcnow()):
     # event types:
     # - 0 is view
