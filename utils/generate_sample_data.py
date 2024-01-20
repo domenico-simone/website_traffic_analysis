@@ -16,6 +16,16 @@ n_events_default  = 100000
 n_banners_default = 10
 n_pages_default   = 20
 n_batches_default = 10
+n_users_default   = 20000
+
+def generate_user_id_list(n_users: int = n_users_default) -> list:
+    """
+    In order to make the simulation more realistic, we generate a list of unique user_id
+    outside the simulations to keep it consistent across simulation batches.
+    
+    """
+    user_ids = [''.join(random.choices(string.ascii_letters + string.digits, k=10)) for _ in range(n_users)]
+    return user_ids
 
 def generate_sample_data_hourly(n_events: int = n_events_default, 
                                 n_banners: int = n_banners_default,
@@ -34,9 +44,6 @@ def generate_sample_data_hourly(n_events: int = n_events_default,
     # simulate timestamps in a range of 1hr
     time_range = int(start_time.timestamp()), int((start_time + timedelta(hours=1)).timestamp())
 
-    # simulate n users so that n = num_events*0.90
-    # so we can simulate users with >1 event
-    users = [''.join(random.choices(string.ascii_letters + string.digits, k=10)) for _ in range(int(n_events*0.90))]
     data = {
         'Timestamp': [random.choice(range(time_range[0], time_range[1])) for _ in range(n_events)],
         'Event_type': [random.choice(event_types) for _ in range(n_events)],
@@ -63,6 +70,8 @@ if __name__ == "__main__":
                         help="Number of pages to be generated (%(default)s)")
     parser.add_argument('-t', '--n-batches', default=n_batches_default,
                         help="Number of data batches (tables) to be generated (%(default)s)")
+    parser.add_argument('-u', '--n-users', default=n_users_default,
+                        help="Number of user_ids to be generated (%(default)s)")
         
     args = parser.parse_args()
     
@@ -72,17 +81,15 @@ if __name__ == "__main__":
 
     # Generate 10 batches of data spanning one hour each
     start_time = datetime.utcnow()
-
-    if args.n_batches:
-        n_batches = args.n_batches
-    else:
-        n_batches = n_batches_default
+    n_batches = args.n_batches if args.n_batches else n_batches_default
+    n_users = args.n_users if args.n_users else n_users_default
 
     logging.info(f"Ad sample data generation params:") 
     logging.info(f"n_events={args.n_events}")
     logging.info(f"n_banners={args.n_banners}")
     logging.info(f"n_pages={args.n_pages}")
     logging.info(f"n_batches={n_batches}")
+    logging.info(f"n_users={n_users}")
 
     for i in range(n_batches):
         logging.debug(f"Generating batch n. {i+1} starting from timestamp {start_time}")
