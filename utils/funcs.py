@@ -1,7 +1,8 @@
+import os
 import yaml
 
 def parse_defaults() -> dict:
-    conf = yaml.safe_load(open('defaults.yaml', 'r').read())
+    conf = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), 'defaults.yaml'), 'r').read())
     return conf
 
 def parse_conf(conf_file=None) -> dict:
