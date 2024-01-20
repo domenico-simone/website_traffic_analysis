@@ -21,7 +21,7 @@ hour_range = range(1, n_days*24+1)
 start_time = datetime.utcnow()
 
 # Initialize Spark session
-spark = SparkSession.builder.appName("CumulativeStatsProcessing").getOrCreate()
+spark = SparkSession.builder.appName("AdStatsProcessingByPlacement").getOrCreate()
 
 ### Set up schemas
 hourly_stats_schema = StructType([
