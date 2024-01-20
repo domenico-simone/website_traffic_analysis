@@ -46,12 +46,12 @@ def generate_sample_data_hourly(n_events: int = n_events_default,
     time_range = int(start_time.timestamp()), int((start_time + timedelta(hours=1)).timestamp())
 
     data = {
-        'Timestamp': [random.choice(range(time_range[0], time_range[1])) for _ in range(n_events)],
-        'Event_type': [random.choice(event_types) for _ in range(n_events)],
-        'Banner_id': [random.choice(banner_ids) for _ in range(n_events)],
-        'Placement_id': [random.choice(placement_ids) for _ in range(n_events)],
-        'Page_id': [random.choice(page_ids) for _ in range(n_events)],
-        'User_id': [random.choice(users) for _ in range(n_events)]
+        'timestamp': [random.choice(range(time_range[0], time_range[1])) for _ in range(n_events)],
+        'event_type': [random.choice(event_types) for _ in range(n_events)],
+        'banner_id': [random.choice(banner_ids) for _ in range(n_events)],
+        'placement_id': [random.choice(placement_ids) for _ in range(n_events)],
+        'page_id': [random.choice(page_ids) for _ in range(n_events)],
+        'user_id': [random.choice(users) for _ in range(n_events)]
     }
     
     return pd.DataFrame(data)
