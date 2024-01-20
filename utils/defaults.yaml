@@ -1,0 +1,11 @@
+# data generation conf
+n_events: 100000
+n_banners: 10
+n_pages: 100
+n_users: 50000
+
+# how many days of data to simulate
+n_days: 5
+
+# stats conf
+grouping_field: placement_id
