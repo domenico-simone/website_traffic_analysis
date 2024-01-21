@@ -37,7 +37,7 @@ hour_range = range(1, n_days*24+1)
 start_time = datetime.utcnow()
 
 # Initialize Spark session
-spark = SparkSession.builder.appName("AdStatsProcessingByPlacement").getOrCreate()
+spark = SparkSession.builder.appName(f"AdStatsProcessingBy_{grouping_field}").master("local[10]").getOrCreate()
 
 ### Set up schemas
 event_schema = StructType([
