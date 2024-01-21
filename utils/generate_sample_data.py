@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
-    level=logging.DEBUG,
+    level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
 
