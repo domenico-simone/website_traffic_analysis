@@ -106,7 +106,7 @@ for hour in hour_range:
     )
 
     # append grouping_field and user_id to mid_grouping_field_users
-    mid_grouping_field_users = mid_grouping_field_users.union(current_df.select(grouping_field, "user_id"))
+    mid_grouping_field_users = mid_grouping_field_users.union(current_df.select(grouping_field, "user_id")).distinct()
     # logging.info(mid_grouping_field_users.show(truncate=10))
 
     # show hourly stats
