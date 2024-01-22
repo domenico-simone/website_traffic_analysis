@@ -1,5 +1,5 @@
 # data generation conf
-n_events: 100000
+n_events: 200000
 n_banners: 10
 n_pages: 20
 n_users: 20000

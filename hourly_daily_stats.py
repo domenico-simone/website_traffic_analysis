@@ -92,7 +92,7 @@ for hour in hour_range:
                                                                    n_banners=n_banners,
                                                                    n_pages=n_pages,
                                                                    start_time=start_time), schema=event_schema)
-    # logging.info(current_df.show(truncate=10))
+
     # Hourly and daily statistics for each grouping_field
     hourly_stats_df = (
         # df.groupBy(grouping_field, F.hour(F.from_unixtime("Timestamp")).alias("hour"))
@@ -107,7 +107,10 @@ for hour in hour_range:
 
     # append grouping_field and user_id to mid_grouping_field_users
     mid_grouping_field_users = mid_grouping_field_users.union(current_df.select(grouping_field, "user_id")).distinct()
-    # logging.info(mid_grouping_field_users.show(truncate=10))
+
+    # REPARTITION HERE
+    # mid_grouping_field_users = mid_grouping_field_users.repartition(grouping_field)
+    mid_grouping_field_users = mid_grouping_field_users.repartitionByRange(grouping_field)
 
     # show hourly stats
     logging.info(f"Hourly stats for time range: {(start_time-timedelta(hours=1)).strftime('%Y-%m-%d, %H:%M:%S')} - {start_time.strftime('%Y-%m-%d, %H:%M:%S')}")
@@ -134,11 +137,11 @@ for hour in hour_range:
                 F.sum("clicks").alias("clicks"),
                 # F.countDistinct("user_id").alias("distinct_users")
             )
-            # .join(mid_grouping_field_users_count, col(grouping_field) == mid_grouping_field_users_count.grouping_field)
             .join(mid_grouping_field_users_count, on = grouping_field, how = "left")
-            .sort(grouping_field)
+            # .sort(grouping_field)
         )
-        daily_stats_df.show()
+        # daily_stats_df.show()
+        logging.info("DONE!")
 
         # reset dataframes to accumulate intermediate data
         daily_df = spark.createDataFrame([], schema=daily_df_schema)
