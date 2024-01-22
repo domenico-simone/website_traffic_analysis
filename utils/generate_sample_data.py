@@ -6,11 +6,15 @@ import random
 import string
 from datetime import datetime, timedelta
 
+from .funcs import parse_conf
+
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+# conf = parse_conf()
 
 n_events_default  = 100000
 n_banners_default = 10
@@ -45,16 +49,17 @@ def generate_sample_data_hourly(n_events: int = n_events_default,
     # simulate timestamps in a range of 1hr
     time_range = int(start_time.timestamp()), int((start_time + timedelta(hours=1)).timestamp())
 
-    data = {
-        'timestamp': [random.choice(range(time_range[0], time_range[1])) for _ in range(n_events)],
-        'event_type': [random.choice(event_types) for _ in range(n_events)],
-        'banner_id': [random.choice(banner_ids) for _ in range(n_events)],
-        'placement_id': [random.choice(placement_ids) for _ in range(n_events)],
-        'page_id': [random.choice(page_ids) for _ in range(n_events)],
-        'user_id': [random.choice(users) for _ in range(n_events)]
-    }
+    data = [{
+        'timestamp': random.choice(range(time_range[0], time_range[1])),
+        'event_type': random.choice(event_types),
+        'banner_id': random.choice(banner_ids),
+        'placement_id': random.choice(placement_ids),
+        'page_id': random.choice(page_ids),
+        'user_id': random.choice(users)
+    } for _ in range(n_events)]
     
-    return pd.DataFrame(data)
+    # return pd.DataFrame(data)
+    return data
 
 if __name__ == "__main__":
 
