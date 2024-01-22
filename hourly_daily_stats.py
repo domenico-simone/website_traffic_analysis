@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
+import gc
 import logging
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.functions import countDistinct, sum, col
 from pyspark.sql.types import StructType, StringType, StructField, IntegerType
 import time
-import yaml
 
 from utils.generate_sample_data import generate_sample_data_hourly, generate_user_id_list
 from utils.funcs import parse_conf
@@ -87,11 +87,14 @@ mid_grouping_field_users = spark.createDataFrame([], schema=mid_grouping_field_u
 for hour in hour_range:
 
     # generate current_df with generate_sample_data function
-    current_df = spark.createDataFrame(generate_sample_data_hourly(users=user_id_list,
-                                                                   n_events=n_events,
-                                                                   n_banners=n_banners,
-                                                                   n_pages=n_pages,
-                                                                   start_time=start_time), schema=event_schema)
+    # run the data generation outside the df creation (in the driver)
+    # and not in the cluster
+    current_df_data = generate_sample_data_hourly(users=user_id_list,
+                                                    n_events=n_events,
+                                                    n_banners=n_banners,
+                                                    n_pages=n_pages,
+                                                    start_time=start_time)
+    current_df = spark.createDataFrame(current_df_data, schema=event_schema)
 
     # Hourly and daily statistics for each grouping_field
     hourly_stats_df = (
@@ -114,7 +117,7 @@ for hour in hour_range:
 
     # show hourly stats
     logging.info(f"Hourly stats for time range: {(start_time-timedelta(hours=1)).strftime('%Y-%m-%d, %H:%M:%S')} - {start_time.strftime('%Y-%m-%d, %H:%M:%S')}")
-    hourly_stats_df.show()
+    # hourly_stats_df.show()
 
     # accumulate statistics to the daily DataFrame
     daily_df = daily_df.union(hourly_stats_df.drop(col("distinct_users")))
@@ -141,11 +144,11 @@ for hour in hour_range:
             # .sort(grouping_field)
         )
         # daily_stats_df.show()
-        logging.info("DONE!")
 
         # reset dataframes to accumulate intermediate data
         daily_df = spark.createDataFrame([], schema=daily_df_schema)
         mid_grouping_field_users = spark.createDataFrame([], schema=mid_grouping_field_users_schema)
+        gc.collect()
 
     
     # cumulative_stats_df = cumulative_stats_df.union(hourly_stats_df)
