@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import gc
 import logging
+import os, sys
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.functions import countDistinct, sum, col
@@ -37,7 +38,14 @@ hour_range = range(1, n_days*24+1)
 start_time = datetime.utcnow()
 
 # Initialize Spark session
-spark = SparkSession.builder.appName(f"AdStatsProcessingBy_{grouping_field}").master("local[10]").getOrCreate()
+spark = SparkSession.builder \
+        .appName(f"AdStatsProcessingBy_{grouping_field}") \
+        .config("spark.driver.memory", "8g") \
+        .config("spark.executor.memory", "8g") \
+        .master("local[10]").getOrCreate()
+
+logging.info(f"SPARK_EXECUTOR_MEMORY={spark.conf.get('spark.executor.memory')}")
+# sys.exit()
 
 ### Set up schemas
 event_schema = StructType([
@@ -95,7 +103,7 @@ for hour in hour_range:
                                                     n_pages=n_pages,
                                                     start_time=start_time)
     current_df = spark.createDataFrame(current_df_data, schema=event_schema)
-
+    del current_df_data
     # Hourly and daily statistics for each grouping_field
     hourly_stats_df = (
         # df.groupBy(grouping_field, F.hour(F.from_unixtime("Timestamp")).alias("hour"))
@@ -158,14 +166,3 @@ for hour in hour_range:
 
     time.sleep(1)
 
-# # Compute cumulative statistics
-# final_cumulative_stats = (
-#     cumulative_stats_df.groupBy("column_name")  # Replace with your grouping column
-#     .agg(
-#         sum("distinct_users").alias("cumulative_distinct_users"),
-#         sum("views").alias("cumulative_views"),
-#         # Add other cumulative statistics as needed
-#     )
-# )
-
-# final_cumulative_stats.show()
