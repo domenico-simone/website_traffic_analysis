@@ -5,7 +5,16 @@ def parse_defaults() -> dict:
     conf = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), 'defaults.yaml'), 'r').read())
     return conf
 
-def parse_conf(conf_file=None) -> dict:
+def parse_conf(conf_file: str = None) -> dict:
+    """Parse conf from a YAML custom file, otherwise gets conf values
+    from a default file.
+
+    Args:
+        conf_file (str, optional): Configuration file (YAML).
+
+    Returns:
+        dict: configuration values
+    """
     default_conf = parse_defaults()
     custom_conf = yaml.safe_load(open(conf_file, 'r').read())
     final_conf = {}
