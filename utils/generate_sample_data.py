@@ -84,43 +84,33 @@ if __name__ == "__main__":
 
     # parse command line args
     parser = argparse.ArgumentParser(
-                    description='Generate a daily equivalent (24 batches) of hourly ad data.')
+                    description='Generate a daily equivalent (24 batches) of hourly website traffic data.')
 
     parser.add_argument('-c', '--conf-file', default="conf.yaml",
-                        help="YAML configuration file. If provided, it will oversede the other params")
-    parser.add_argument('-e', '--n-events', #default=n_events_default,
-                        help="Number of events to be generated")# (%(default)s)")
-    parser.add_argument('-b', '--n-banners', #default=n_banners_default,
-                        help="Number of banners to be generated")# (%(default)s)")
-    parser.add_argument('-p', '--n-pages', #default=n_pages_default,
-                        help="Number of pages to be generated")# (%(default)s)")
-    # parser.add_argument('-t', '--n-batches', default=n_batches_default,
-    #                     help="Number of data batches (tables) to be generated (%(default)s)")
-    parser.add_argument('-u', '--n-users', #default=n_users_default,
-                        help="Number of user_ids to be generated")# (%(default)s)")
+                        help="YAML configuration file. Please note: if other options are provided, they will overseed the ones provided by the YAML file.")
+    parser.add_argument('-e', '--n-events', default=n_events_default,
+                        help="Number of events to be generated (default: %(default)s)")
+    parser.add_argument('-b', '--n-banners', default=n_banners_default,
+                        help="Number of banners to be generated (default: %(default)s)")
+    parser.add_argument('-p', '--n-pages', default=n_pages_default,
+                        help="Number of pages to be generated (default: %(default)s)")
+    parser.add_argument('-u', '--n-users', default=n_users_default,
+                        help="Number of user_ids to be generated (default: %(default)s)")
         
     args = parser.parse_args()
-    print(args)
-    print(args.n_events)
 
-    # sys.exit()
-    
     kws = ['n_events', 'n_banners', 'n_pages', 'n_users']
     if args.conf_file:
         conf = parse_conf(args.conf_file)
-        # for kw in kws:
-        #     if kw not in conf:
-        #         conf[kw] = 
     else:
         conf = parse_defaults()
-    # if any command line is provided, it will overwrite the value
+    # if any command line option is provided, it will overseed the value
     # provided in the conf file
     arg_dict = vars(args)
     for var in arg_dict:
         if arg_dict[var]:
             conf[var] = arg_dict[var]
     print(conf)    
-    # sys.exit()
     
     # Generate appropriate out folder
     out_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/sample_data")
@@ -131,11 +121,10 @@ if __name__ == "__main__":
     # n_batches = args.n_batches if args.n_batches else n_batches_default
     n_users = args.n_users if args.n_users else n_users_default
 
-    logging.info(f"Ad sample data generation params:") 
+    logging.info(f"Website traffic sample data generation params:") 
     logging.info(f"n_events={conf['n_events']}")
     logging.info(f"n_banners={conf['n_banners']}")
     logging.info(f"n_pages={conf['n_pages']}")
-    # logging.info(f"n_batches={n_batches}")
     logging.info(f"n_users={conf['n_users']}")
 
     users_id_list = generate_user_id_list()
