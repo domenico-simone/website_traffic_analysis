@@ -28,7 +28,7 @@ if not os.path.isfile(args.input_file):
 spark = SparkSession.builder.appName("WebsiteTrafficStats").getOrCreate()
 
 # Load data
-df = spark.read.csv("data/sample_data/sample_data_01.csv", header=True, inferSchema=True)
+df = spark.read.csv(args.input_file, header=True, inferSchema=True)
 
 # Hourly and daily statistics for each placement_id
 placement_stats = (
