@@ -42,3 +42,5 @@ placement_stats = (
 )
 
 placement_stats.show()
+
+spark.stop()
