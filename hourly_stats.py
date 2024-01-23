@@ -25,7 +25,7 @@ if not os.path.isfile(args.input_file):
     logging.error(f"Input file {args.input_file} not found!") 
     raise FileNotFoundError
 
-spark = SparkSession.builder.appName("PlacementStats").getOrCreate()
+spark = SparkSession.builder.appName("WebsiteTrafficStats").getOrCreate()
 
 # Load data
 df = spark.read.csv("data/sample_data/sample_data_01.csv", header=True, inferSchema=True)
@@ -33,11 +33,11 @@ df = spark.read.csv("data/sample_data/sample_data_01.csv", header=True, inferSch
 # Hourly and daily statistics for each placement_id
 placement_stats = (
     # df.groupBy("Placement_id", F.hour(F.from_unixtime("Timestamp")).alias("hour"))
-    df.groupBy("Placement_id")
+    df.groupBy("placement_id")
     .agg(
-        F.count(F.when(F.col("Event_type") == 0, 1)).alias("views"),
-        F.sum("Event_type").alias("clicks"),
-        F.countDistinct("User_id").alias("distinct_users")
+        F.count(F.when(F.col("event_type") == 0, 1)).alias("views"),
+        F.sum("event_type").alias("clicks"),
+        F.countDistinct("user_id").alias("distinct_users")
     )
 )
 
