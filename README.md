@@ -124,9 +124,14 @@ python utils/generate_sample_data.py
 
 ### Compute hourly statistics
 
-This script will compute hourly stats for a single file (by default, `data/sample_data/sample_data_01.csv`)
+This job script will compute hourly stats for a single file (by default, `data/sample_data/sample_data_01.csv`)
 
 ```
 python hourly_stats.py
 ```
 
+### Compute daily statistics
+
+This job script will compute daily stats, using the 24 batch files available in the folder `data/sample_data`.
+
+TODO: check if all expected files are there.
