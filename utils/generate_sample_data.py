@@ -15,12 +15,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 conf_defaults = parse_defaults()
-logging.info(f"Defaults: {conf_defaults}")
-# n_events_default  = 100000
-# n_banners_default = 10
-# n_pages_default   = 20
-# n_batches_default = 10
-# n_users_default   = 20000
+
 n_events_default  = conf_defaults['n_events']
 n_banners_default = conf_defaults['n_banners']
 n_pages_default   = conf_defaults['n_pages']
