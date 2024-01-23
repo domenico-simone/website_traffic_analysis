@@ -77,7 +77,6 @@ def generate_sample_data_hourly(n_events: int = n_events_default,
         'user_id': random.choice(users)
     } for _ in range(n_events)]
     
-    # return pd.DataFrame(data)
     return data
 
 if __name__ == "__main__":
