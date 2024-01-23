@@ -1,5 +1,6 @@
-scratch.*
+scratch*
 sample_data
 **.pyc
 dataaa
 scratch/*
+airflow
