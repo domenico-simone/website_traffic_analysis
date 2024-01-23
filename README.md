@@ -49,45 +49,6 @@ The service to be developed should be able to handle a huge amount of data. The 
 
 Ad clicks message processing: architecture design
 
-## Run the services
-
-### Generate sample data
-
-Generation of sample data is performed with the script `utils/generate_sample_data.py`. The following parameters can be tweaked: 
-
-```
-usage: generate_sample_data.py [-h] [-c CONF_FILE] [-e N_EVENTS] [-b N_BANNERS] [-p N_PAGES] [-u N_USERS]
-
-Generate a daily equivalent (24 batches) of hourly website traffic data.
-
-options:
-  -h, --help            show this help message and exit
-  -c CONF_FILE, --conf-file CONF_FILE
-                        YAML configuration file. Please note: if other options are provided, they will overseed the ones provided by the YAML file.
-  -e N_EVENTS, --n-events N_EVENTS
-                        Number of events to be generated (default: 100000)
-  -b N_BANNERS, --n-banners N_BANNERS
-                        Number of banners to be generated (default: 10)
-  -p N_PAGES, --n-pages N_PAGES
-                        Number of pages to be generated (default: 100)
-  -u N_USERS, --n-users N_USERS
-                        Number of user_ids to be generated (default: 50000)
-```
-
-Number of placements cannot be provided as option since it is set by design (n=5).
-
-```bash
-python utils/generate_sample_data.py
-```
-
-### Compute hourly statistics
-
-This script will compute hourly stats for a single file (by default, `data/sample_data/sample_data_01.csv`)
-
-```
-python hourly_stats.py
-```
-
 ## Installation
 
 Create conda env with python==3.10 and activate environment
@@ -126,3 +87,46 @@ export AIRFLOW_HOME=`pwd`/airflow
 
 airflow standalone
 ```
+
+## Run the services
+
+### Generate sample data
+
+Generation of sample data is performed with the script `utils/generate_sample_data.py`. Parameters for this script can be set in two ways:
+
+- through a configuration file (in YAML format: please refer to the `conf.yaml` file in the root directory for an example) provided with the `-c` (`--conf-file`) option
+- through the command line options (which will overseed the conf file provided with `-c`), as follows: 
+
+```
+usage: generate_sample_data.py [-h] [-c CONF_FILE] [-e N_EVENTS] [-b N_BANNERS] [-p N_PAGES] [-u N_USERS]
+
+Generate a daily equivalent (24 batches) of hourly website traffic data.
+
+options:
+  -h, --help            show this help message and exit
+  -c CONF_FILE, --conf-file CONF_FILE
+                        YAML configuration file. Please note: if other options are provided, they will overseed the ones provided by the YAML file.
+  -e N_EVENTS, --n-events N_EVENTS
+                        Number of events to be generated (default: 100000)
+  -b N_BANNERS, --n-banners N_BANNERS
+                        Number of banners to be generated (default: 10)
+  -p N_PAGES, --n-pages N_PAGES
+                        Number of pages to be generated (default: 100)
+  -u N_USERS, --n-users N_USERS
+                        Number of user_ids to be generated (default: 50000)
+```
+
+Please note that number of placements can not be provided as option since it is set by design (n=5).
+
+```bash
+python utils/generate_sample_data.py
+```
+
+### Compute hourly statistics
+
+This script will compute hourly stats for a single file (by default, `data/sample_data/sample_data_01.csv`)
+
+```
+python hourly_stats.py
+```
+
