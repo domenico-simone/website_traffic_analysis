@@ -56,22 +56,22 @@ Ad clicks message processing: architecture design
 Please run the script `utils/generate_sample_data.py` which has the following options:
 
 ```
-usage: generate_sample_data.py [-h] [-e N_EVENTS] [-b N_BANNERS] [-p N_PAGES] [-t N_BATCHES] [-u N_USERS]
+usage: generate_sample_data.py [-h] [-c CONF_FILE] [-e N_EVENTS] [-b N_BANNERS] [-p N_PAGES] [-u N_USERS]
 
-Generate one or more batches (tables) with ad sample data spanning one hour.
+Generate a daily equivalent (24 batches) of hourly website traffic data.
 
 options:
   -h, --help            show this help message and exit
+  -c CONF_FILE, --conf-file CONF_FILE
+                        YAML configuration file. Please note: if other options are provided, they will overseed the ones provided by the YAML file.
   -e N_EVENTS, --n-events N_EVENTS
-                        Number of events to be generated (100000)
+                        Number of events to be generated (default: 100000)
   -b N_BANNERS, --n-banners N_BANNERS
-                        Number of banners to be generated (10)
+                        Number of banners to be generated (default: 10)
   -p N_PAGES, --n-pages N_PAGES
-                        Number of pages to be generated (20)
-  -t N_BATCHES, --n-batches N_BATCHES
-                        Number of data batches (tables) to be generated (10)
+                        Number of pages to be generated (default: 100)
   -u N_USERS, --n-users N_USERS
-                        Number of user_ids to be generated (20000)
+                        Number of user_ids to be generated (default: 50000)
 ```
 
 setting placements is not provided as option since the number is set by design (n=5).
@@ -81,3 +81,48 @@ python utils/generate_sample_data.py
 ```
 
 ### Compute hourly statistics
+
+This script will compute hourly stats for a single file (by default, `data/sample_data/sample_data_01.csv`)
+
+```
+python hourly_stats.py
+```
+
+## Installation
+
+Create conda env with python==3.10 and activate environment
+
+```bash
+conda create -n website_traffic_analysis python=3.10
+conda activate website_traffic_analysis
+```
+
+Install pip requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+Install Apache Airflow
+
+```bash
+# Set desired Airflow version
+AIRFLOW_VERSION=2.8.1
+
+# Extract the version of Python installed in the conda environment to get the constraints file
+PYTHON_VERSION="$(python --version | cut -d " " -f 2 | cut -d "." -f 1-2)"
+
+CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
+
+pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
+```
+
+For testing purposes, we can launch Airflow as standalone
+
+```bash
+# set HOME dir for Airflow
+mkdir -p airflow
+export AIRFLOW_HOME=`pwd`/airflow
+
+airflow standalone
+```
