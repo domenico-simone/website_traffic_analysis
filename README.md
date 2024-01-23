@@ -122,6 +122,10 @@ Please note that number of placements can not be provided as option since it is 
 python utils/generate_sample_data.py
 ```
 
+#### About user_ids
+
+The user_id list is computed **before** running the event generation in order to keep users consistent across generated batches. 
+
 ### Compute hourly statistics
 
 This job script will compute hourly stats for a single file (by default, `data/sample_data/sample_data_01.csv`)
