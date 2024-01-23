@@ -61,7 +61,7 @@ def generate_sample_data_hourly(n_events: int = n_events_default,
     logging.debug(f"page_ids: {page_ids}")
     
     # simulate timestamps in a range of 1hr
-    time_range = int(start_time.timestamp()), int((start_time + timedelta(hours=1)).timestamp())
+    time_range = int(start_time.timestamp()), int((start_time + timedelta(minutes=59, seconds=59)).timestamp())
 
     data = [{
         'timestamp': random.choice(range(time_range[0], time_range[1])),
