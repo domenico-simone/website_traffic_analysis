@@ -11,20 +11,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# # parse command line args
-# parser = argparse.ArgumentParser(
-#                 description='Compute stats for an event batch file.')
-
-# parser.add_argument('-i', '--input-file', default="data/sample_data/sample_data_01.csv",
-#                     help="Event batch input file (%(default)s)")
-
-# args = parser.parse_args()
-
-# # Check if input file exists, exit if not
-# if not os.path.isfile(args.input_file):
-#     logging.error(f"Input file {args.input_file} not found!") 
-#     raise FileNotFoundError
-
 spark = SparkSession.builder \
         .appName("WebtrafficStats_daily") \
         .master("local[2]").getOrCreate()
@@ -33,16 +19,16 @@ spark = SparkSession.builder \
 df_all = spark.read.csv("data/sample_data/", header=True, inferSchema=True)
 
 # Daily statistics for the requested grouping id
-placement_stats = (
-    # df.groupBy("Placement_id", F.hour(F.from_unixtime("Timestamp")).alias("hour"))
+daily_stats = (
     df_all.groupBy("page_id")
     .agg(
+        F.date_format(F.from_unixtime(F.any_value("timestamp")), "yyyy-MM-dd").alias('date'),
         F.count(F.when(F.col("event_type") == 0, 1)).alias("n_views"),
         F.sum("event_type").alias("n_clicks"),
         F.countDistinct("user_id").alias("distinct_users")
     )
 )
 
-placement_stats.show()
+daily_stats.show()
 
 spark.stop()
