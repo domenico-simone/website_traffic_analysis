@@ -110,8 +110,9 @@ if __name__ == "__main__":
     out_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/sample_data")
     os.makedirs(out_folder, exist_ok=True)
 
-    # Generate 10 batches of data spanning one hour each
-    start_time = datetime.utcnow()
+    # start_time = datetime.utcnow()
+    start_time = datetime.utcnow() \
+                         .replace(minute=0, second=0)
     # n_batches = args.n_batches if args.n_batches else n_batches_default
     n_users = args.n_users if args.n_users else n_users_default
 
