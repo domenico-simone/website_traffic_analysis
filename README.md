@@ -53,7 +53,7 @@ Ad clicks message processing: architecture design
 
 ### Generate sample data
 
-Please run the script `utils/generate_sample_data.py` which has the following options:
+Generation of sample data is performed with the script `utils/generate_sample_data.py`. The following parameters can be tweaked: 
 
 ```
 usage: generate_sample_data.py [-h] [-c CONF_FILE] [-e N_EVENTS] [-b N_BANNERS] [-p N_PAGES] [-u N_USERS]
@@ -74,7 +74,7 @@ options:
                         Number of user_ids to be generated (default: 50000)
 ```
 
-setting placements is not provided as option since the number is set by design (n=5).
+Number of placements cannot be provided as option since it is set by design (n=5).
 
 ```bash
 python utils/generate_sample_data.py
