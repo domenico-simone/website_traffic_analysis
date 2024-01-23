@@ -80,27 +80,30 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
                     description='Generate a daily equivalent (24 batches) of hourly website traffic data.')
 
-    parser.add_argument('-c', '--conf-file', default="conf.yaml",
+    parser.add_argument('-c', '--conf-file',
                         help="YAML configuration file. Please note: if other options are provided, they will overseed the ones provided by the YAML file.")
-    parser.add_argument('-e', '--n-events', default=n_events_default,
-                        help="Number of events to be generated (default: %(default)s)")
-    parser.add_argument('-b', '--n-banners', default=n_banners_default,
-                        help="Number of banners to be generated (default: %(default)s)")
-    parser.add_argument('-p', '--n-pages', default=n_pages_default,
-                        help="Number of pages to be generated (default: %(default)s)")
-    parser.add_argument('-u', '--n-users', default=n_users_default,
-                        help="Number of user_ids to be generated (default: %(default)s)")
+    parser.add_argument('-e', '--n-events',
+                        help=f"Number of events to be generated (default: {n_events_default})")
+    parser.add_argument('-b', '--n-banners',
+                        help=f"Number of banner_ids to be generated (default: {n_banners_default})")
+    parser.add_argument('-p', '--n-pages',
+                        help=f"Number of page_ids to be generated (default: {n_pages_default})")
+    parser.add_argument('-u', '--n-users',
+                        help=f"Number of user_ids to be generated (default: {n_users_default})")
         
     args = parser.parse_args()
 
     kws = ['n_events', 'n_banners', 'n_pages', 'n_users']
     if args.conf_file:
         conf = parse_conf(args.conf_file)
+        logging.debug("Custom conf file parsed")
     else:
         conf = parse_defaults()
+        logging.debug("Default conf file parsed")
     # if any command line option is provided, it will overseed the value
     # provided in the conf file
     arg_dict = vars(args)
+    logging.debug(f"arg_dict: {arg_dict}")
     for var in arg_dict:
         if arg_dict[var]:
             conf[var] = arg_dict[var]
@@ -110,10 +113,11 @@ if __name__ == "__main__":
     out_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/sample_data")
     os.makedirs(out_folder, exist_ok=True)
 
-    # start_time = datetime.utcnow()
     start_time = datetime.utcnow() \
-                         .replace(minute=0, second=0)
-    # n_batches = args.n_batches if args.n_batches else n_batches_default
+                         .replace(hour=0, minute=0, second=0)
+    logging.info(f"start_time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    # sys.exit()
+
     n_users = args.n_users if args.n_users else n_users_default
 
     logging.info(f"Website traffic sample data generation params:") 
@@ -124,7 +128,7 @@ if __name__ == "__main__":
 
     users_id_list = generate_user_id_list()
     for i in range(24):
-        logging.info(f"Generating batch n. {i+1} starting from timestamp {start_time}")
+        logging.info(f"Generating batch n. {i+1} starting from timestamp {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         sample_data = generate_sample_data_hourly(n_events=conf['n_events'],
                                                   n_pages=conf['n_pages'],
                                                   n_banners=conf['n_banners'],
