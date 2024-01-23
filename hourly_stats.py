@@ -35,6 +35,8 @@ placement_stats = (
     # df.groupBy("Placement_id", F.hour(F.from_unixtime("Timestamp")).alias("hour"))
     df.groupBy("placement_id")
     .agg(
+        F.date_format(F.from_unixtime(F.any_value("timestamp")), "yyyy-MM-dd'T'HH:00:00").alias('start_time_utc'),
+        F.date_format(F.from_unixtime(F.any_value("timestamp")), "yyyy-MM-dd'T'HH:59:59").alias('end_time_utc'),
         F.count(F.when(F.col("event_type") == 0, 1)).alias("views"),
         F.sum("event_type").alias("clicks"),
         F.countDistinct("user_id").alias("distinct_users")
