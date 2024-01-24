@@ -79,6 +79,14 @@ if __name__ == "__main__":
                             batch_type="hourly",
                             # datetime_log is the date of the event
                             datetime_log=date_time))
+        
+        # write stats to file
+        # create folder if it doesn't exist
+        out_folder_stats = f"data/stats/hourly/{args.grouping_field}"
+        out_file = os.path.join(out_folder_stats, f"{os.path.basename(input_file)}_stats.csv")
+        os.makedirs(out_folder_stats, exist_ok=True)
+        hourly_stats.coalesce(1).write.csv(out_file, header=True, mode="overwrite")
+        console_logger.info(f"Hourly report for {date_time_string} written to {out_file}")
         hourly_stats.show()
     except Exception as e:
         traceback_str = traceback.format_exc()

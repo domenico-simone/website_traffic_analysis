@@ -142,6 +142,8 @@ TODO: check if all expected files are there.
 
 Features to be implemented:
 
+**Data QC.** Some data might be missing in the batch files due to some error. Events with missing data should be filtered out, with a report of event survival rate _eg_ in the stats table.
+
 **Export stats to a db** (_e.g._ MySQL or Redis)
 
 **Write logs to a db**:

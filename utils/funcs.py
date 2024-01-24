@@ -1,5 +1,6 @@
 import logging
 import os
+import random
 import yaml
 from logging import Logger
 from typing import Union
@@ -68,3 +69,29 @@ def set_logging(log_file: str = "data/logs/ad_stats_processing.log",
     except:
         logging.error("Logging setup failed!")
         return None, None
+
+def generate_random_null_value(value_list, none_percentage):
+    """_summary_
+
+    # Example usage
+    defined_list = [1, 2, 3, 4, 5]
+    none_percentage = 10
+
+    # Generate 10 values to demonstrate the distribution
+    none_c = 0
+    for _ in range(100):
+        result = generate_random_null_value(defined_list, none_percentage)
+        if not result:
+            none_c += 1
+
+    :param value_list: _description_
+    :type value_list: _type_
+    :param none_percentage: _description_
+    :type none_percentage: _type_
+    :return: _description_
+    :rtype: _type_
+    """
+    if random.random() < none_percentage / 100:
+        return None
+    else:
+        return random.choice(value_list)
