@@ -135,16 +135,63 @@ python hourly_stats.py
 
 This job script will compute daily stats, using the 24 batch files available in the folder `data/sample_data`.
 
-TODO: check if all expected files are there.
+## Event processing: architecture design & features
 
+### Job set up and scheduling
 
-## Message processing: architecture design & features
+The infrastructure has been designed in the scenario of receiving hourly batches of data. The system is scheduled to receive a new file at each round hour, with the following naming template: `YYYY-MM-DD_hh-00-00_sample_data.csv` (for testing purposes, the files are located in the folder `data/sample_data`). Therefore, the architecture for processing these batch files should schedule two jobs:
+
+- a **hourly** processing to get hourly statistics. Scheduling of this job should find a tradeoff between providing the statistics in a timely fashion (_ie_, as soon as the batch file is _supposed_ to be collected) and ensuring the batch file is actually available, since there might be delays in the batch file delivery. An Airflow DAG could be triggered 5 seconds after the beginning of the hour, with a maximum of 10 retries scheduled every 15 seconds.
+
+- a **daily** processing to get daily statistics. Scheduling of this job should find the above mentioned tradeoff, with the additional consideration that the job is expected to find 24 batch files to be processed as once. Triggering of this job should be dependent upon this check, therefore we could implement a retry strategy of 10 retries scheduled every 15 seconds, starting from 5-10 seconds after midnight. However, the job is scheduled to run in any case, with the logging of the number of expected missing files. 
+
+Upon successful completion of the the daily processing, the related batch files could be removed, based on storage needs.
+
+### Data processing
+
+#### Settings
+
+The core data processing (filtering/aggregation) is implemented in PySpark, in order to leverage on the reliability and scalability of this framework. Special attention is required in the allocation of computational resources. Preliminary tests performed on a laptop (**provide features**) with (**provide spark resource allocation**) have shown that a scenario of 1M events/hr distributed across 50K users / 10 banners / 20 pages is handled by the system quite seamlessly. **Talk about partitioning etc**
+
+#### Results
+
+The dataframe output by the hourly processing has the following fields:
+
+- **placement_id** or **page_id**, depending on the chosen field to aggregate by
+- **start_time** in UTC format
+- **end_time** in UTC format
+- **number of hourly views** for a placement_id or page_id
+- **number of hourly clicks** for a placement_id or page_id
+- **number of distinct users** for a placement_id or page_id.
+
+The dataframe output by the daily processing has the following fields:
+
+- **placement_id** or **page_id**, depending on the chosen field to aggregate by
+- **date**
+- **number of daily views** for a placement_id or page_id
+- **number of daily clicks** for a placement_id or page_id
+- **number of distinct users** for a placement_id or page_id.
+
+#### Logs
+
+Logs are an essential feature of the data ingestion pipeline. Two loggers have been configured:
+ - **console_logger** that prints messages on the screen (Pyspark console messages will be printed on screen as well)
+ - **db_logger** that stores logging messages in jsonl format, then appends the logged events to a logfile (`data/logs/ad_stats_processing.log`). To this purpose, a custom Python class (`DbLogger`) has been developed, with the following attributes:
+   - **status** reporting task status (_eg_ `SUCCESS`, `FAILED`) or progress (`INFO`, `WARNING`);
+   - **message** _eg_ `Daily report for 2024-01-24: DONE`
+   - **timestamp**: the timestamp (UTC) of the _logged event_
+   - **batch_type**: the aggregation level of the job (`daily` or `hourly`)
+   - **datetime**: the timestamp (UTC) of the batch whose processing generated the logging message, rounded to the beginning of the reported hour for hourly processing (_eg_ `2024-01-24T18:55:29` becomes `2024-01-24T18:00:00`) or to the beginning of the reported day for daily processing (_eg_ `2024-01-24T18:55:29` becomes `2024-01-24T00:00:00`).
+
+More attributes could be added. Regardless, the jsonl file can be used to produce the logs to a dedicated database.
 
 Features to be implemented:
 
-**Data QC.** Some data might be missing in the batch files due to some error. Events with missing data should be filtered out, with a report of event survival rate _eg_ in the stats table.
+**Data QC.** Some events might harbor missing values for certain fields due to some upstream issue. If the missing fields are `user_id` and/or the field for which we are collecting statistics (`placement_id` or `page_id` depending on the task), such events should be filtered out, with a report of event survival rate _eg_ in the stats table (TODO).
 
-**Export stats to a db** (_e.g._ MySQL or Redis)
+**Enforce a schema when reading the batch file.** This has been implemented for both jobs. In case the validation of incoming data raises an error, this will be  
+
+**Export computed stats to a db**, _e.g._ MySQL or Redis.
 
 **Write logs to a db**:
   - schema errors
