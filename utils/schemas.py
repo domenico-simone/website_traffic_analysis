@@ -20,3 +20,7 @@ class DbLogger:
     
     def __str__(self):
         return json.dumps(vars(self))
+
+datetime_log_format_filename = "%Y-%m-%dT%H-%M-%S"
+datetime_log_format_hourly   = "%Y-%m-%dT%H:%M:%S"
+datetime_log_format_daily    = "%Y-%m-%dT00:00:00"

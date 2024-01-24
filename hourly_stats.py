@@ -6,7 +6,7 @@ import os
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
-from utils.schemas import event_schema, DbLogger
+from utils.schemas import event_schema, DbLogger, datetime_log_format_hourly, datetime_log_format_filename
 from utils.funcs import set_logging
 
 # logging.basicConfig(
@@ -50,16 +50,17 @@ if __name__ == "__main__":
     console_logger, db_logger = set_logging(log_file="data/logs/ad_stats_processing.log", overwrite_file_handler=False)
 
     input_file = args.input
-    # assume file name template is YYYY-MM-DD_hh:mm:ss_sample_data.csv
+    # assume file name template is YYYY-MM-DD_hh-mm-ss_sample_data.csv
     date_time_string = 'T'.join(os.path.basename(input_file).split("_")[:2])
+    date_time = datetime.strptime(date_time_string, datetime_log_format_filename).strftime(datetime_log_format_hourly)
     # Check if input file exists, exit if not
     if not os.path.isfile(input_file):
         console_logger.error(f"Input file {input_file} not found!")
         db_logger.error(DbLogger(status='ERROR', 
                                  message=f'Batch file {input_file} not found', 
-                                 timestamp=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), 
+                                 timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                                  batch_type="hourly", 
-                                 datetime_log=date_time_string))
+                                 datetime_log=date_time))
         raise FileNotFoundError(input_file)
 
     console_logger.info(f"Starting Spark session")
@@ -74,20 +75,20 @@ if __name__ == "__main__":
         db_logger.info(DbLogger(status='SUCCESS', 
                             message=f'Hourly report for {date_time_string}: DONE',
                             # timestamp is when the command is run
-                            timestamp=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), 
+                            timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                             batch_type="hourly",
                             # datetime_log is the date of the event
-                            datetime_log=date_time_string))
+                            datetime_log=date_time))
         hourly_stats.show()
     except Exception as e:
         traceback_str = traceback.format_exc()
         db_logger.info(DbLogger(status='ERROR', 
                             message=f'Hourly report for {date_time_string}: failed with traceback:\n{traceback_str}',
                             # timestamp is when the command is run
-                            timestamp=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), 
+                            timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                             batch_type="hourly",
                             # datetime_log is the date of the event
-                            datetime_log=date_time_string))
+                            datetime_log=date_time))
                             # datetime_log=date_time_string.strftime("%Y-%m-%d")))
 
         raise RuntimeError(f"An error occurred: {e}\nTraceback:\n{traceback_str}")

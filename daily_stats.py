@@ -6,7 +6,7 @@ import traceback
 from datetime import datetime, timedelta
 from pyspark.sql import SparkSession
 
-from utils.schemas import event_schema, DbLogger
+from utils.schemas import event_schema, DbLogger, datetime_log_format_daily, datetime_log_format_hourly
 from utils.funcs import set_logging
 
 # logging.basicConfig(
@@ -44,10 +44,10 @@ def check_files_for_daily_stats(batch_folder: str,
         db_logger.warning(DbLogger(status='WARNING', 
                                  message=f'{n_files}/24 batch files found',
                                  # timestamp is when the command is run
-                                 timestamp=datetime.now().strftime("%Y-%m-%d"), 
+                                 timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                                  batch_type="daily",
                                  # datetime_log is the date of the events
-                                 datetime_log=date.strftime("%Y-%m-%d")))
+                                 datetime_log=date.strftime(datetime_log_format_daily)))
         
 if __name__ == "__main__":
 
@@ -94,20 +94,20 @@ if __name__ == "__main__":
         db_logger.info(DbLogger(status='SUCCESS', 
                                  message=f'Daily report for {log_date}: DONE',
                                  # timestamp is when the command is run
-                                 timestamp=datetime.now().strftime("%Y-%m-%d"), 
+                                 timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                                  batch_type="daily",
                                  # datetime_log is the date of the events
-                                 datetime_log=date.strftime("%Y-%m-%d")))
+                                 datetime_log=date.strftime(datetime_log_format_daily)))
         daily_stats.show()
     except Exception as e:
         traceback_str = traceback.format_exc()
         db_logger.info(DbLogger(status='ERROR', 
                             message=f'Daily report for {date}: failed with traceback:\n{traceback_str}',
                             # timestamp is when the command is run
-                            timestamp=datetime.now().strftime("%Y-%m-%d"), 
+                            timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                             batch_type="daily",
                             # datetime_log is the date of the events
-                            datetime_log=date.strftime("%Y-%m-%d")))
+                            datetime_log=date.strftime(datetime_log_format_daily)))
 
         raise RuntimeError(f"An error occurred: {e}\nTraceback:\n{traceback_str}")
 
