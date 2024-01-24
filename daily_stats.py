@@ -83,12 +83,11 @@ if __name__ == "__main__":
             .appName("WebtrafficStats_daily") \
             .master("local[2]").getOrCreate()
 
-    # Load data
-    df_all = spark.read.csv(input_folder, header=True, schema=event_schema)
-
     # Daily statistics for the requested grouping id
     try:
-        raise Exception
+        # Load data
+        df_all = spark.read.csv(input_folder, header=True, schema=event_schema)
+        # raise Exception
         daily_stats = get_daily_stats(df_all, args.grouping_field)
         log_date = daily_stats.select("date").first()["date"]
         console_logger.info(f"Daily report for {log_date}: DONE")
