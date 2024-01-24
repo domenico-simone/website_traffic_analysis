@@ -135,7 +135,8 @@ if __name__ == "__main__":
                                                   users=users_id_list,
                                                   start_time=start_time)
         sample_data = pd.DataFrame(sample_data)
-        sample_data_outfile = f'sample_data_{str(i+1).zfill(2)}.csv'
+        # sample_data_outfile = f"{start_time.strftime('%Y-%m-%d_%H:%M:%S')}_sample_data_{str(i+1).zfill(2)}.csv"
+        sample_data_outfile = f"{start_time.strftime('%Y-%m-%d_%H-%M-%S')}_sample_data.csv"
         sample_data.to_csv(os.path.join(out_folder, f'{sample_data_outfile}'), index=False)
         logging.info(f'Exported file {sample_data_outfile}')
         start_time += timedelta(hours=1)
