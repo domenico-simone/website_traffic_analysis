@@ -85,30 +85,6 @@ source website_traffic_analysis/bin/activate
 pip install -r requirements.txt
 ```
 
-Install Apache Airflow
-
-```bash
-# Set desired Airflow version
-AIRFLOW_VERSION=2.8.1
-
-# Extract the version of Python installed in the conda environment to get the constraints file
-PYTHON_VERSION="$(python --version | cut -d " " -f 2 | cut -d "." -f 1-2)"
-
-CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
-
-pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
-```
-
-For testing purposes, we can launch Airflow as standalone
-
-```bash
-# set HOME dir for Airflow
-mkdir -p airflow
-export AIRFLOW_HOME=`pwd`/airflow
-
-airflow standalone
-```
-
 ## Run the services
 
 ### Generate sample data
@@ -173,6 +149,10 @@ Features to be implemented:
   - missing files (for daily statistics)
 
 In the code included in this repository, these logs are written to a log file. This log file could be used as source for writing logs to an external db, although the logs could also be written during the execution of the scripts.
+
+**Scheduling**
+
+In the examples provided in this repository, a daily equivalent of hourly batches (n=24) is simulated in a single run [stg about file naming]. In a real life scenario, one batch file per hour will be provided. These batch files should be processed with the logic implemented in the `hourly_stats.py` script as soon as they are received, while the logic implemented in the script `daily_stats.py` should be scheduled to run every 24 hours. If the whole procedure succeeds, the whole daily dataset could be deleted for storage purposes.
 
 ### Real-time streaming processing
 
