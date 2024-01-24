@@ -4,3 +4,4 @@ sample_data
 dataaa
 scratch/*
 airflow
+logs
