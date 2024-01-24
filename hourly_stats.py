@@ -7,7 +7,7 @@ import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
 from utils.schemas import event_schema, DbLogger, datetime_log_format_hourly, datetime_log_format_filename
-from utils.funcs import set_logging
+from utils.funcs import set_logging, write_stats_to_file
 
 # logging.basicConfig(
 #     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
@@ -81,11 +81,7 @@ if __name__ == "__main__":
                             datetime_log=date_time))
         
         # write stats to file
-        # create folder if it doesn't exist
-        out_folder_stats = f"data/stats/hourly/{args.grouping_field}"
-        out_file = os.path.join(out_folder_stats, f"{os.path.basename(input_file)}_stats.csv")
-        os.makedirs(out_folder_stats, exist_ok=True)
-        hourly_stats.coalesce(1).write.csv(out_file, header=True, mode="overwrite")
+        out_file = write_stats_to_file(df=hourly_stats, agg_freq="hourly", grouping_field=args.grouping_field, file_date=date_time_string)
         console_logger.info(f"Hourly report for {date_time_string} written to {out_file}")
         hourly_stats.show()
     except Exception as e:
