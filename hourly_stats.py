@@ -32,8 +32,8 @@ if __name__ == "__main__":
 
     parser.add_argument('-i', '--input', required=True,
                         help="Event batch input file (default: %(default)s)")
-    parser.add_argument('-g', '--grouping-field', default="placement_id",
-                        help="Event table field to compute statistics for (default: %(default)s)")
+    parser.add_argument('-g', '--grouping-field', choices=["placement_id", "page_id"],
+                        help="Event table field to compute statistics for")
     parser.add_argument('-t', '--log-timestamp', default="today",
                         choices=["yesterday", "today", "tomorrow"],
                         help="Date to use in logging (for testing purposes). Timezone: UTC")
