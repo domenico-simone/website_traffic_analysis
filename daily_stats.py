@@ -9,11 +9,11 @@ from pyspark.sql import SparkSession
 from utils.schemas import event_schema, DbLogger
 from utils.funcs import set_logging
 
-logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
-    level=logging.INFO,
-)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(
+#     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
+#     level=logging.INFO,
+# )
+# logger = logging.getLogger(__name__)
 
 def get_daily_stats(df_all, grouping_field):
     daily_stats = (
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     # parse command line args
     parser = argparse.ArgumentParser(
-                    description='Compute stats for an hourly event batch file.')
+                    description='Compute stats for a daily equivalent of batch files.')
 
     parser.add_argument('-i', '--input-folder', default="data/sample_data/",
                         help="Folder with event batch input files (default: %(default)s)")
