@@ -9,12 +9,6 @@ from pyspark.sql import SparkSession
 from utils.schemas import event_schema, DbLogger, datetime_log_format_hourly, datetime_log_format_filename
 from utils.funcs import set_logging, write_stats_to_file
 
-# logging.basicConfig(
-#     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
-#     level=logging.INFO,
-# )
-# logger = logging.getLogger(__name__)
-
 def get_hourly_stats(df, grouping_field):
     hourly_stats = (
         df.groupBy(grouping_field)
