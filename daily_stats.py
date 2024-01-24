@@ -38,6 +38,24 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     input_folder = args.input_folder
+
+    # set logging
+    # set up the logger for printing to the screen (console)
+    console_logger = logging.getLogger('console_logger')
+    console_handler = logging.StreamHandler()
+    console_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
+    console_handler.setFormatter(console_formatter)
+    console_logger.addHandler(console_handler)
+    console_logger.setLevel(logging.INFO)
+
+    # set up the logger for producing logs to a database
+    # create log folder if it does not exist
+    os.makedirs("data/logs", exist_ok=True)
+    db_logger = logging.getLogger('db_logger')
+    db_handler = logging.FileHandler('data/logs/hourly.log')
+    db_logger.addHandler(db_handler)
+    db_logger.setLevel(logging.INFO)
+    
     spark = SparkSession.builder \
             .appName("WebtrafficStats_daily") \
             .master("local[2]").getOrCreate()

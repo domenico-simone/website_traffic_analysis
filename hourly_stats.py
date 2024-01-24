@@ -1,16 +1,19 @@
 import argparse
+from datetime import datetime
 import logging
 import os
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
-from utils.schemas import event_schema
+from utils.schemas import event_schema, DbLogger
 
-logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
-    level=logging.INFO,
-)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(
+#     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
+#     level=logging.INFO,
+# )
+# logger = logging.getLogger(__name__)
+
+
 
 def get_hourly_stats(df, grouping_field):
     hourly_stats = (
@@ -39,12 +42,36 @@ if __name__ == "__main__":
                         help="Event table field to compute statistics for (default: %(default)s)")
 
     args = parser.parse_args()
+
+    # set logging
+    # set up the logger for printing to the screen (console)
+    console_logger = logging.getLogger('console_logger')
+    console_handler = logging.StreamHandler()
+    console_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
+    console_handler.setFormatter(console_formatter)
+    console_logger.addHandler(console_handler)
+    console_logger.setLevel(logging.INFO)
+
+    # set up the logger for producing logs to a database
+    # create log folder if it does not exist
+    os.makedirs("data/logs", exist_ok=True)
+    db_logger = logging.getLogger('db_logger')
+    db_handler = logging.FileHandler('data/logs/hourly.log')
+    db_logger.addHandler(db_handler)
+    db_logger.setLevel(logging.INFO)
+
     input_file = args.input
     # Check if input file exists, exit if not
     if not os.path.isfile(input_file):
-        logging.error(f"Input file {input_file} not found!") 
+        console_logger.error(f"Input file {input_file} not found!")
+        db_logger.error(DbLogger(status='ERROR', 
+                                 message='Batch file not found', 
+                                 timestamp=datetime.now().strftime("%Y-%m-%d"), 
+                                 batch_type="daily", 
+                                 datetime_log=datetime.now().strftime("%Y-%m-%d")))
         raise FileNotFoundError
 
+    console_logger.info(f"Starting Spark session")
     spark = SparkSession.builder.appName("WebsiteTrafficStats_hourly").getOrCreate()
 
     # Load data
