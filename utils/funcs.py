@@ -1,7 +1,10 @@
+import glob
 import logging
 import os
 import random
+import shutil
 import yaml
+from pyspark.sql.dataframe import DataFrame
 from logging import Logger
 from typing import Union
 
@@ -69,6 +72,30 @@ def set_logging(log_file: str = "data/logs/ad_stats_processing.log",
     except:
         logging.error("Logging setup failed!")
         return None, None
+
+def write_stats_to_file(df: DataFrame, agg_freq: str, grouping_field: str, file_date: str):
+    """Write spark df to single csv file.
+
+    Args:
+        df (DataFrame): pyspark DataFrame
+        agg_freq (str): daily or hourly
+        grouping_field (str): placement_id or page_id
+        file_date (str): datetime eg YYYY-MM-DD_hh-mm-ss as extracted from DataFrame
+    
+    Return:
+        out_file (str): outfile
+    """
+    # out_file = os.path.join()
+    out_folder_stats = f"data/stats/{agg_freq}/{grouping_field}"
+    out_file = os.path.join(out_folder_stats, f"{os.path.basename(file_date)}_stats.csv")
+    os.makedirs(out_folder_stats, exist_ok=True)
+    df.coalesce(1).write.csv(out_file, header=True, mode="overwrite")
+    old_out_file = glob.glob(f"{out_file}/*.csv")[0]
+    os.rename(old_out_file, f"{out_file}.temp")
+    shutil.rmtree(out_file)
+    os.rename(f"{out_file}.temp", out_file)
+
+    return out_file
 
 def generate_random_null_value(value_list, none_percentage):
     """_summary_
