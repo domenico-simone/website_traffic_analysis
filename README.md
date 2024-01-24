@@ -51,16 +51,37 @@ Ad clicks message processing: architecture design
 
 ## Installation
 
-Create conda env with python==3.10 and activate environment
+If you already have a working Java installation, you can skip to the [next section](#install-in-venv) to install the requirements in a venv
+
+### Install in conda env
 
 ```bash
+# create conda env with python==3.10 and activate environment
 conda create -n website_traffic_analysis python=3.10
 conda activate website_traffic_analysis
 ```
 
+If you don't have java installed on your machine, please install it within the created conda env:
+
+```bash
+conda install -c conda-forge openjdk
+```
+
+Install requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+### Install in venv
+
 Install pip requirements
 
 ```bash
+# create venv and install requirements
+python -m venv website_traffic_analysis
+source website_traffic_analysis/bin/activate
+
 pip install -r requirements.txt
 ```
 
