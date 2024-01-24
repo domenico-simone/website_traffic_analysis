@@ -6,6 +6,7 @@ import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
 from utils.schemas import event_schema, DbLogger
+from utils.funcs import set_logging
 
 # logging.basicConfig(
 #     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
@@ -44,21 +45,23 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # set logging
-    # set up the logger for printing to the screen (console)
-    console_logger = logging.getLogger('console_logger')
-    console_handler = logging.StreamHandler()
-    console_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
-    console_handler.setFormatter(console_formatter)
-    console_logger.addHandler(console_handler)
-    console_logger.setLevel(logging.INFO)
+    console_logger, db_logger = set_logging(log_file="data/logs/ad_stats_processing.log", overwrite_file_handler=False)
+    # # set logging
+    # # set up the logger for printing to the screen (console)
+    # console_logger = logging.getLogger('console_logger')
+    # console_handler = logging.StreamHandler()
+    # console_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
+    # console_handler.setFormatter(console_formatter)
+    # console_logger.addHandler(console_handler)
+    # console_logger.setLevel(logging.INFO)
 
-    # set up the logger for producing logs to a database
-    # create log folder if it does not exist
-    os.makedirs("data/logs", exist_ok=True)
-    db_logger = logging.getLogger('db_logger')
-    db_handler = logging.FileHandler('data/logs/hourly.log')
-    db_logger.addHandler(db_handler)
-    db_logger.setLevel(logging.INFO)
+    # # set up the logger for producing logs to a database
+    # # create log folder if it does not exist
+    # os.makedirs("data/logs", exist_ok=True)
+    # db_logger = logging.getLogger('db_logger')
+    # db_handler = logging.FileHandler('data/logs/hourly.log')
+    # db_logger.addHandler(db_handler)
+    # db_logger.setLevel(logging.INFO)
 
     input_file = args.input
     # Check if input file exists, exit if not
