@@ -50,11 +50,12 @@ if __name__ == "__main__":
     # Check if input file exists, exit if not
     if not os.path.isfile(input_file):
         console_logger.error(f"Input file {input_file} not found!")
-        db_logger.error(DbLogger(status='ERROR', 
+        db_logger.error(DbLogger(status='ERROR',
                                  message=f'Batch file {input_file} not found', 
-                                 timestamp=datetime.now().strftime(datetime_log_format_hourly), 
+                                 log_timestamp=datetime.now().strftime(datetime_log_format_hourly),
+                                 grouping_id=args.grouping_field,
                                  batch_type="hourly", 
-                                 datetime_log=date_time))
+                                 batch_timestamp=date_time))
         raise FileNotFoundError(input_file)
 
     console_logger.info(f"Starting Spark session")
@@ -66,13 +67,14 @@ if __name__ == "__main__":
 
         # Hourly statistics for each element in grouping_id
         hourly_stats = get_hourly_stats(df, grouping_field=args.grouping_field)
-        db_logger.info(DbLogger(status='SUCCESS', 
-                            message=f'Hourly report for {date_time_string}: DONE',
-                            # timestamp is when the command is run
-                            timestamp=datetime.now().strftime(datetime_log_format_hourly), 
-                            batch_type="hourly",
-                            # datetime_log is the date of the event
-                            datetime_log=date_time))
+        db_logger.info(DbLogger(status='SUCCESS',
+                                message=f'Hourly report for {date_time_string}: DONE',
+                                # log_timestamp is when this log is generated
+                                log_timestamp=datetime.now().strftime(datetime_log_format_hourly),
+                                grouping_id=args.grouping_field,
+                                batch_type="hourly",
+                                # batch_timestamp is the date of the event batch
+                                batch_timestamp=date_time))
         
         # write stats to file
         out_file = write_stats_to_file(df=hourly_stats, agg_freq="hourly", grouping_field=args.grouping_field, file_date=date_time_string)
@@ -82,12 +84,10 @@ if __name__ == "__main__":
         traceback_str = traceback.format_exc()
         db_logger.info(DbLogger(status='ERROR', 
                             message=f'Hourly report for {date_time_string}: failed with traceback:\n{traceback_str}',
-                            # timestamp is when the command is run
-                            timestamp=datetime.now().strftime(datetime_log_format_hourly), 
+                            log_timestamp=datetime.now().strftime(datetime_log_format_hourly), 
+                            grouping_id=args.grouping_field,
                             batch_type="hourly",
-                            # datetime_log is the date of the event
-                            datetime_log=date_time))
-                            # datetime_log=date_time_string.strftime("%Y-%m-%d")))
+                            batch_timestamp=date_time))
 
         raise RuntimeError(f"An error occurred: {e}\nTraceback:\n{traceback_str}")
 

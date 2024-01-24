@@ -11,12 +11,16 @@ event_schema = StructType([
 ])
 
 class DbLogger:
-    def __init__(self, status, message, timestamp, batch_type, datetime_log):
-        self.status = status
-        self.message = message
-        self.timestamp = timestamp
-        self.batch_type = batch_type
-        self.datetime = datetime_log
+    def __init__(self, status: str, message: str, log_timestamp: str, 
+                 batch_type: str, grouping_id: str, batch_timestamp: str):
+        self.status          = status
+        self.message         = message
+        # log_timestamp is when this log is generated
+        self.log_timestamp   = log_timestamp
+        self.batch_type      = batch_type
+        self.grouping_id     = grouping_id
+        # batch_timestamp is the date of the event batch
+        self.batch_timestamp = batch_timestamp
     
     def __str__(self):
         return json.dumps(vars(self))

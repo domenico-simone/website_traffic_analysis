@@ -46,7 +46,7 @@ def check_files_for_daily_stats(batch_folder: str,
                                  # timestamp is when the command is run
                                  timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                                  batch_type="daily",
-                                 # datetime_log is the date of the events
+    
                                  datetime_log=date.strftime(datetime_log_format_daily)))
         
 if __name__ == "__main__":
@@ -93,11 +93,10 @@ if __name__ == "__main__":
         console_logger.info(f"Daily report for {log_date}: DONE")
         db_logger.info(DbLogger(status='SUCCESS', 
                                  message=f'Daily report for {log_date}: DONE',
-                                 # timestamp is when the command is run
-                                 timestamp=datetime.now().strftime(datetime_log_format_hourly), 
+                                 grouping_id=args.grouping_field,
+                                 log_timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                                  batch_type="daily",
-                                 # datetime_log is the date of the events
-                                 datetime_log=date.strftime(datetime_log_format_daily)))
+                                 batch_timestamp=date.strftime(datetime_log_format_daily)))
         # write stats to file
         out_file = write_stats_to_file(df=daily_stats, agg_freq="daily", grouping_field=args.grouping_field, file_date=log_date)
         console_logger.info(f"Daily report for {log_date} written to {out_file}")
@@ -106,11 +105,10 @@ if __name__ == "__main__":
         traceback_str = traceback.format_exc()
         db_logger.info(DbLogger(status='ERROR', 
                             message=f'Daily report for {date.strftime(datetime_log_format_daily)}: failed with traceback:\n{traceback_str}',
-                            # timestamp is when the command is run
-                            timestamp=datetime.now().strftime(datetime_log_format_hourly), 
+                            grouping_id=args.grouping_field,
+                            log_timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                             batch_type="daily",
-                            # datetime_log is the date of the events
-                            datetime_log=date.strftime(datetime_log_format_daily)))
+                            batch_timestamp=date.strftime(datetime_log_format_daily)))
 
         raise RuntimeError(f"An error occurred: {e}\nTraceback:\n{traceback_str}")
 
