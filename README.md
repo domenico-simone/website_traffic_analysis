@@ -139,3 +139,20 @@ python hourly_stats.py
 This job script will compute daily stats, using the 24 batch files available in the folder `data/sample_data`.
 
 TODO: check if all expected files are there.
+
+
+## Message processing: architecture design & features
+
+Features to be implemented:
+
+**Export stats to a db** (_e.g._ MySQL or Redis)
+
+**Write logs to a db**:
+  - schema errors
+  - missing files (for daily statistics)
+
+In the code included in this repository, these logs are written to a log file. This log file could be used as source for writing logs to an external db, although the logs could also be written during the execution of the scripts.
+
+### Real-time streaming processing
+
+Although code for real-time streaming processing is not provided here, it is worth mentioning that this is a quite common scenario for the streaming of website traffic data, therefore 
