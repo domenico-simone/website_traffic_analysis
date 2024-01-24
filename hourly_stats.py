@@ -4,6 +4,7 @@ import os
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
+from utils.schemas import event_schema
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     spark = SparkSession.builder.appName("WebsiteTrafficStats_hourly").getOrCreate()
 
     # Load data
-    df = spark.read.csv(input_file, header=True, inferSchema=True)
+    df = spark.read.csv(input_file, header=True, schema=event_schema)
 
     # Hourly and daily statistics for each placement_id
     hourly_stats = get_hourly_stats(df, grouping_field=args.grouping_field)

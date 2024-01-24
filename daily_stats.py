@@ -4,6 +4,7 @@ import os
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
+from utils.schemas import event_schema
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(funcName)s - %(message)s",
@@ -42,7 +43,7 @@ if __name__ == "__main__":
             .master("local[2]").getOrCreate()
 
     # Load data
-    df_all = spark.read.csv(input_folder, header=True, inferSchema=True)
+    df_all = spark.read.csv(input_folder, header=True, schema=event_schema)
 
     # Daily statistics for the requested grouping id
     daily_stats = get_daily_stats(df_all, args.grouping_field)
