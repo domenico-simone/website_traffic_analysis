@@ -1,6 +1,7 @@
 import argparse
 from datetime import datetime
 import logging
+import traceback
 import os
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
@@ -35,10 +36,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
                     description='Compute stats for an hourly event batch file.')
 
-    parser.add_argument('-i', '--input', default="data/sample_data/sample_data_01.csv",
+    parser.add_argument('-i', '--input', required=True,
                         help="Event batch input file (default: %(default)s)")
     parser.add_argument('-g', '--grouping-field', default="placement_id",
                         help="Event table field to compute statistics for (default: %(default)s)")
+    parser.add_argument('-t', '--log-timestamp', default="today",
+                        choices=["yesterday", "today", "tomorrow"],
+                        help="Date to use in logging (for testing purposes). Timezone: UTC")
 
     args = parser.parse_args()
 
@@ -46,24 +50,46 @@ if __name__ == "__main__":
     console_logger, db_logger = set_logging(log_file="data/logs/ad_stats_processing.log", overwrite_file_handler=False)
 
     input_file = args.input
+    # assume file name template is YYYY-MM-DD_hh:mm:ss_sample_data.csv
+    date_time_string = 'T'.join(os.path.basename(input_file).split("_")[:2])
     # Check if input file exists, exit if not
     if not os.path.isfile(input_file):
         console_logger.error(f"Input file {input_file} not found!")
         db_logger.error(DbLogger(status='ERROR', 
-                                 message='Batch file not found', 
-                                 timestamp=datetime.now().strftime("%Y-%m-%d"), 
-                                 batch_type="daily", 
-                                 datetime_log=datetime.now().strftime("%Y-%m-%d")))
-        raise FileNotFoundError
+                                 message=f'Batch file {input_file} not found', 
+                                 timestamp=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), 
+                                 batch_type="hourly", 
+                                 datetime_log=date_time_string))
+        raise FileNotFoundError(input_file)
 
     console_logger.info(f"Starting Spark session")
-    spark = SparkSession.builder.appName("WebsiteTrafficStats_hourly").getOrCreate()
+    try:
+        spark = SparkSession.builder.appName("WebsiteTrafficStats_hourly").getOrCreate()
 
-    # Load data
-    df = spark.read.csv(input_file, header=True, schema=event_schema)
+        # Load data
+        df = spark.read.csv(input_file, header=True, schema=event_schema)
 
-    # Hourly and daily statistics for each placement_id
-    hourly_stats = get_hourly_stats(df, grouping_field=args.grouping_field)
-    hourly_stats.show()
+        # Hourly statistics for each element in grouping_id
+        hourly_stats = get_hourly_stats(df, grouping_field=args.grouping_field)
+        db_logger.info(DbLogger(status='SUCCESS', 
+                            message=f'Hourly report for {date_time_string}: DONE',
+                            # timestamp is when the command is run
+                            timestamp=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), 
+                            batch_type="hourly",
+                            # datetime_log is the date of the event
+                            datetime_log=date_time_string))
+        hourly_stats.show()
+    except Exception as e:
+        traceback_str = traceback.format_exc()
+        db_logger.info(DbLogger(status='ERROR', 
+                            message=f'Hourly report for {date_time_string}: failed with traceback:\n{traceback_str}',
+                            # timestamp is when the command is run
+                            timestamp=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), 
+                            batch_type="hourly",
+                            # datetime_log is the date of the event
+                            datetime_log=date_time_string))
+                            # datetime_log=date_time_string.strftime("%Y-%m-%d")))
+
+        raise RuntimeError(f"An error occurred: {e}\nTraceback:\n{traceback_str}")
 
     spark.stop()
