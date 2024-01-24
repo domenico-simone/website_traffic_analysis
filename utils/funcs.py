@@ -63,7 +63,7 @@ def set_logging(log_file: str = "data/logs/ad_stats_processing.log",
         db_logger.addHandler(db_handler)
         db_logger.setLevel(logging.INFO)
 
-        console_logger.info("Logging setup complete")
+        console_logger.info(f"Logging setup complete, logfile: {log_file}")
         return console_logger, db_logger
     except:
         logging.error("Logging setup failed!")
