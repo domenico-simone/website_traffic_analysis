@@ -105,7 +105,7 @@ if __name__ == "__main__":
     except Exception as e:
         traceback_str = traceback.format_exc()
         db_logger.info(DbLogger(status='ERROR', 
-                            message=f'Daily report for {date}: failed with traceback:\n{traceback_str}',
+                            message=f'Daily report for {date.strftime(datetime_log_format_daily)}: failed with traceback:\n{traceback_str}',
                             # timestamp is when the command is run
                             timestamp=datetime.now().strftime(datetime_log_format_hourly), 
                             batch_type="daily",
