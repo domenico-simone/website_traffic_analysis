@@ -18,6 +18,7 @@
 	* [Compute hourly statistics](#Computehourlystatistics)
 	* [Compute daily statistics](#Computedailystatistics)
 * [Further developments](#Furtherdevelopments)
+	* [Scaling Spark](#ScalingSpark)
 	* [Data QC](#DataQC)
 	* [Scheduling](#Scheduling)
 	* [Real-time streaming processing](#Real-timestreamingprocessing)
@@ -231,7 +232,7 @@ Logs will be written to file `data/logs/ad_stats_processing.log` and printed on 
 
 ## <a name='Furtherdevelopments'></a>Further developments
 
-### Scaling Spark
+### <a name='ScalingSpark'></a>Scaling Spark
 
 This processing service has proven to be fast and reliable, with the capability of processing hourly batches of 1M events. Since the website for which the service has been designed is a very busy website, in production deployments we might need to scale horizontally and allocate more resources to the Spark instance.
 
