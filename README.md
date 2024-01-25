@@ -231,6 +231,10 @@ Logs will be written to file `data/logs/ad_stats_processing.log` and printed on 
 
 ## <a name='Furtherdevelopments'></a>Further developments
 
+### Scaling Spark
+
+This processing service has proven to be fast and reliable, with the capability of processing hourly batches of 1M events. Since the website for which the service has been designed is a very busy website, in production deployments we might need to scale horizontally and allocate more resources to the Spark instance.
+
 ### <a name='DataQC'></a>Data QC
 
 Some events might harbor missing values for certain fields due to some upstream issue. If the missing fields are `user_id` and/or the field for which we are collecting statistics (`placement_id` or `page_id` depending on the task), such events should be carefully handled, with the option of filtering them out, with a report of event survival rate _eg_ in the stats table or in the log file.
