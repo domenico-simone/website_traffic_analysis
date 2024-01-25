@@ -1,8 +1,9 @@
 # Website ad data processing
-<!-- TOC -->
 
+<!-- TOC -->
 - [Website ad data processing](#website-ad-data-processing)
-        - [</a>Goals](#agoals)
+    - [Overview](#overview)
+        - [Goals](#goals)
     - [Event processing: architecture design & features](#event-processing-architecture-design--features)
         - [Job set up and scheduling](#job-set-up-and-scheduling)
         - [Data processing](#data-processing)
@@ -25,9 +26,7 @@
 
 <!-- /TOC -->
 
-## Overview
-
-### </a>Goals
+### Goals
 
 - Set up a service that will receive and process data related to views and clicks of website ads.  
 - Compute hourly and daily statistics for each placement_id (number of views and clicks of each placement_id).
