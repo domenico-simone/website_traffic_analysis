@@ -44,9 +44,10 @@ def check_files_for_daily_stats(batch_folder: str,
         db_logger.warning(DbLogger(status='WARNING', 
                                  message=f'{n_files}/24 batch files found',
                                  # timestamp is when the command is run
-                                 timestamp=datetime.now().strftime(datetime_log_format_hourly), 
+                                 log_timestamp=datetime.now().strftime(datetime_log_format_hourly),
+                                 grouping_id="null",
                                  batch_type="daily",    
-                                 datetime_log=date.strftime(datetime_log_format_daily)))
+                                 batch_timestamp=date.strftime(datetime_log_format_daily)))
         
 if __name__ == "__main__":
 
