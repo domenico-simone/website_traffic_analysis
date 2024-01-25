@@ -129,9 +129,9 @@ if __name__ == "__main__":
     users_id_list = generate_user_id_list()
     for i in range(24):
         logging.info(f"Generating batch n. {i+1} starting from timestamp {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        sample_data = generate_sample_data_hourly(n_events=conf['n_events'],
-                                                  n_pages=conf['n_pages'],
-                                                  n_banners=conf['n_banners'],
+        sample_data = generate_sample_data_hourly(n_events=int(conf['n_events']),
+                                                  n_pages=int(conf['n_pages']),
+                                                  n_banners=int(conf['n_banners']),
                                                   users=users_id_list,
                                                   start_time=start_time)
         sample_data = pd.DataFrame(sample_data)
