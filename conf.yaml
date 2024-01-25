@@ -3,9 +3,3 @@ n_events: 1000000
 n_banners: 10
 n_pages: 20
 n_users: 20000
-
-# # how many days of data to simulate
-# n_days: 5
-
-# stats conf
-grouping_field: placement_id
