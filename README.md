@@ -1,49 +1,45 @@
 # Website ad data processing
+<!-- TOC -->
 
-<!-- vscode-markdown-toc -->
-* [Overview](#Overview)
-	* [Goals](#Goals)
-* [Event processing: architecture design & features](#Eventprocessing:architecturedesignfeatures)
-	* [Job set up and scheduling](#Jobsetupandscheduling)
-	* [Data processing](#Dataprocessing)
-		* [Settings](#Settings)
-		* [Results](#Results)
-		* [Logs](#Logs)
-* [Environment set up](#Environmentsetup)
-	* [Install in conda env](#Installincondaenv)
-	* [Install in venv](#Installinvenv)
-* [Run the services](#Runtheservices)
-	* [Generate sample data](#Generatesampledata)
-		* [About user_ids](#Aboutuser_ids)
-	* [Compute hourly statistics](#Computehourlystatistics)
-	* [Compute daily statistics](#Computedailystatistics)
-* [Further developments](#Furtherdevelopments)
-	* [Scaling Spark](#ScalingSpark)
-	* [Data QC](#DataQC)
-	* [Scheduling](#Scheduling)
-	* [Real-time streaming processing](#Real-timestreamingprocessing)
+- [Website ad data processing](#website-ad-data-processing)
+        - [</a>Goals](#agoals)
+    - [Event processing: architecture design & features](#event-processing-architecture-design--features)
+        - [Job set up and scheduling](#job-set-up-and-scheduling)
+        - [Data processing](#data-processing)
+            - [Settings](#settings)
+            - [Results](#results)
+            - [Logs](#logs)
+    - [Environment set up](#environment-set-up)
+        - [Install in conda env](#install-in-conda-env)
+        - [Install in venv](#install-in-venv)
+    - [Run the services](#run-the-services)
+        - [Generate sample data](#generate-sample-data)
+            - [About user_ids](#about-user_ids)
+        - [Compute hourly statistics](#compute-hourly-statistics)
+        - [Compute daily statistics](#compute-daily-statistics)
+    - [Further developments](#further-developments)
+        - [Scaling Spark](#scaling-spark)
+        - [Data QC](#data-qc)
+        - [Scheduling](#scheduling)
+        - [Real-time streaming processing](#real-time-streaming-processing)
 
-<!-- vscode-markdown-toc-config
-	numbering=false
-	autoSave=true
-	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc -->
+<!-- /TOC -->
 
-## <a name='Overview'></a>Overview
+## Overview
 
-### <a name='Goals'></a>Goals
+### </a>Goals
 
 - Set up a service that will receive and process data related to views and clicks of website ads.  
 - Compute hourly and daily statistics for each placement_id (number of views and clicks of each placement_id).
 - Count distinct users which viewed or clicked on a placement.
 - Compute the same statistics above (number of views, clicks and distinct users) for each page.
 
-## <a name='Eventprocessing:architecturedesignfeatures'></a>Event processing: architecture design & features
+## Event processing: architecture design & features
 
 ![Workflow](data/misc/workflow.png)
 _Workflow of the message processing. Services in dotted frames have not been implemented yet, but are discussed in this document (see [Further developments](#Furtherdevelopments))._
 
-### <a name='Jobsetupandscheduling'></a>Job set up and scheduling
+### Job set up and scheduling
 
 The infrastructure has been designed in the scenario of receiving hourly batches of data. The system is scheduled to receive a new file at each round hour, with the following naming template: `YYYY-MM-DD_hh-00-00_sample_data.csv` (for testing purposes, the files are located in the folder `data/sample_data`). Therefore, the architecture for processing these batch files includes two jobs:
 
@@ -52,15 +48,15 @@ The infrastructure has been designed in the scenario of receiving hourly batches
 
 Upon successful completion of the the daily processing, the related batch files could be removed, based on storage needs.
 
-### <a name='Dataprocessing'></a>Data processing
+### Data processing
 
-#### <a name='Settings'></a>Settings
+#### Settings
 
 The core data processing (filtering/aggregation) is implemented in PySpark, in order to leverage on the reliability and scalability of this framework. Special attention is required in the allocation of computational resources. Preliminary tests performed on a Ubuntu/WSL2 laptop (16 cores/16GB RAM) have shown that a setting of 1M events/hr distributed across 50K users / 10 banners / 20 pages is handled by the system quite seamlessly. For the daily stats computation, 2 cores were allocated to the SparkSession builder.
 
 **Enforce a schema when reading the batch file.** This has been implemented for both jobs.
 
-#### <a name='Results'></a>Results
+#### Results
 
 The dataframe output by the hourly processing has the following fields:
 
@@ -81,7 +77,7 @@ The dataframe output by the daily processing has the following fields:
 
 Processing results are saved in the folder structure `data/stats/<batch_type>/<grouping_id>` for further use.
 
-#### <a name='Logs'></a>Logs
+#### Logs
 
 Logs are an essential feature of the data ingestion pipeline. Two loggers have been configured:
 
@@ -100,11 +96,11 @@ More attributes could be added. Regardless, the jsonl file can be used to produc
 
 Further details and possible developments of the architecture are discussed in the section [Further developments](#Furtherdevelopments).
 
-## <a name='Environmentsetup'></a>Environment set up
+## Environment set up
 
 If you already have a working Java installation, you can skip to the [next section](#install-in-venv) to install the requirements in a venv
 
-### <a name='Installincondaenv'></a>Install in conda env
+### Install in conda env
 
 ```bash
 # create conda env with python==3.10 and activate environment
@@ -124,7 +120,7 @@ Install requirements
 pip install -r requirements.txt
 ```
 
-### <a name='Installinvenv'></a>Install in venv
+### Install in venv
 
 Install pip requirements
 
@@ -136,9 +132,9 @@ source website_traffic_analysis/bin/activate
 pip install -r requirements.txt
 ```
 
-## <a name='Runtheservices'></a>Run the services
+## Run the services
 
-### <a name='Generatesampledata'></a>Generate sample data
+### Generate sample data
 
 Generation of sample data is performed with the script `utils/generate_sample_data.py`. Simulated batches of data will be written as csv files in `data/sample_data`.  
 
@@ -172,11 +168,11 @@ Please note that number of placements to be generated can not be provided as opt
 python utils/generate_sample_data.py -c conf.yaml
 ```
 
-#### <a name='Aboutuser_ids'></a>About user_ids
+#### About user_ids
 
 The user_id list is computed **before** running the generation of all batch files in order to keep user_ids consistent across generated batches. 
 
-### <a name='Computehourlystatistics'></a>Compute hourly statistics
+### Compute hourly statistics
 
 This job script will compute hourly stats for a single file (by default, `data/sample_data/2024-01-24_00-00-00_sample_data.csv`). Required parameters are the name of the batch file to be processed (`-i`) and the field used for aggregation (`-g`, either `placement_id` or `page_id`). Full list of options, available through the command `python hourly_stats.py --help`, is provided as follows:
 
@@ -203,7 +199,7 @@ python hourly_stats.py -g placement_id -i data/sample_data/2024-01-24_00-00-00_s
 
 Logs will be written to file `data/logs/ad_stats_processing.log` and printed on console.
 
-### <a name='Computedailystatistics'></a>Compute daily statistics
+### Compute daily statistics
 
 This job script will compute daily stats, using the 24 batch files available in the folder `data/sample_data`. The only required parameter is the field used for aggregation (`-g`, either `placement_id` or `page_id`). Full list of options, available through the command `python daily_stats.py --help`, is provided as follows:
 
@@ -230,17 +226,17 @@ python daily_stats.py -g page_id
 
 Logs will be written to file `data/logs/ad_stats_processing.log` and printed on console.
 
-## <a name='Furtherdevelopments'></a>Further developments
+## Further developments
 
-### <a name='ScalingSpark'></a>Scaling Spark
+### Scaling Spark
 
 This processing service has proven to be fast and reliable, with the capability of processing hourly batches of 1M events. Since the website for which the service has been designed is a very busy website, in production deployments we might need to scale horizontally and allocate more resources to the Spark instance.
 
-### <a name='DataQC'></a>Data QC
+### Data QC
 
 Some events might harbor missing values for certain fields due to some upstream issue. If the missing fields are `user_id` and/or the field for which we are collecting statistics (`placement_id` or `page_id` depending on the task), such events should be carefully handled, with the option of filtering them out, with a report of event survival rate _eg_ in the stats table or in the log file.
 
-### <a name='Scheduling'></a>Scheduling
+### Scheduling
 
 In the examples provided in this repository, a daily equivalent of hourly batches (n=24) is simulated in a single run. In a real life scenario, one batch file per hour will be provided. These batch files should be processed with the logic implemented in the `hourly_stats.py` script as soon as they are received, while the logic implemented in the script `daily_stats.py` should be scheduled to run every 24 hours. If the whole procedure succeeds, the whole daily dataset could be deleted for storage purposes.
 
@@ -248,7 +244,7 @@ Scheduling of the hourly_stats job should find a tradeoff between providing the 
 
 Scheduling of the daily_stats job should find the above mentioned tradeoff too, with the additional consideration that the job is expected to find 24 batch files to be processed as once. Triggering of this job should be dependent upon this check, therefore we could implement a retry strategy of 10 retries scheduled every 15 seconds, starting from 5-10 seconds after midnight. However, the job is scheduled to run in any case, with the logging of the number of expected missing files. 
 
-### <a name='Real-timestreamingprocessing'></a>Real-time streaming processing
+### Real-time streaming processing
 
 A processing setting relying on real-time streaming (RTS) is not provided here. However, RTS is a quite common scenario for the processing of website traffic data, therefore it is worth discussing some relevant aspects of this kind of setup which would set it apart from the batch system implemented in this project.
 
